@@ -24,15 +24,21 @@ fun HomeNavGraph(navController: NavHostController) {
                 }
             )
         }
-        composable(route = BottomBarScreen.Profile.route) {
+        composable(route = BottomBarScreen.Sleep.route) {
             ScreenContent(
-                name = BottomBarScreen.Profile.route,
+                name = BottomBarScreen.Sleep.route,
                 onClick = { }
             )
         }
-        composable(route = BottomBarScreen.Settings.route) {
+        composable(route = BottomBarScreen.Workout.route) {
             ScreenContent(
-                name = BottomBarScreen.Settings.route,
+                name = BottomBarScreen.Workout.route,
+                onClick = { }
+            )
+        }
+        composable(route = BottomBarScreen.Profile.route) {
+            ScreenContent(
+                name = BottomBarScreen.Profile.route,
                 onClick = { }
             )
         }

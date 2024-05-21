@@ -1,31 +1,26 @@
 package com.example.healthapp
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
-
 sealed class BottomBarScreen(
     val route: String,
-    val title: String,
-    val icon: ImageVector
+    val icon: Int
 ) {
     object Home : BottomBarScreen(
         route = "HOME",
-        title = "HOME",
-        icon = Icons.Default.Home
+        icon = R.drawable.ic_navbar_home
     )
 
-    object Profile : BottomBarScreen(
+    object Sleep: BottomBarScreen(
+        route = "SLEEP",
+        icon = R.drawable.ic_navbar_sleep
+    )
+
+    object Workout: BottomBarScreen(
+        route = "WORKOUT",
+        icon =  R.drawable.ic_navbar_workout
+    )
+
+    object Profile: BottomBarScreen(
         route = "PROFILE",
-        title = "PROFILE",
-        icon = Icons.Default.Person
-    )
-
-    object Settings : BottomBarScreen(
-        route = "SETTINGS",
-        title = "SETTINGS",
-        icon = Icons.Default.Settings
+        icon = R.drawable.ic_navbar_person
     )
 }

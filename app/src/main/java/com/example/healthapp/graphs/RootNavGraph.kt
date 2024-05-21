@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.bottomnavbardemo.screens.home.HomeScreen
+import com.example.healthapp.screens.home.HomeScreen
 
 @Composable
 fun RootNavigationGraph(navController: NavHostController) {
