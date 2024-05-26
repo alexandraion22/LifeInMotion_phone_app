@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.healthapp.BottomBarScreen
+import com.example.healthapp.screens.HomeContent
+import com.example.healthapp.screens.NewScreen
 import com.example.healthapp.screens.ScreenContent
 
 @Composable
@@ -16,13 +18,8 @@ fun HomeNavGraph(navController: NavHostController) {
         route = Graph.HOME,
         startDestination = BottomBarScreen.Home.route
     ) {
-        composable(route = BottomBarScreen.Home.route) {
-            ScreenContent(
-                name = BottomBarScreen.Home.route,
-                onClick = {
-                    navController.navigate(Graph.DETAILS)
-                }
-            )
+        composable(BottomBarScreen.Home.route) {
+            HomeContent(navController)
         }
         composable(route = BottomBarScreen.Sleep.route) {
             ScreenContent(
@@ -41,6 +38,9 @@ fun HomeNavGraph(navController: NavHostController) {
                 name = BottomBarScreen.Profile.route,
                 onClick = { }
             )
+        }
+        composable(route = BottomBarScreen.NewScreen.route) {
+            NewScreen()
         }
         detailsNavGraph(navController = navController)
     }

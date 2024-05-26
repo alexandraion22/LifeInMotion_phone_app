@@ -23,4 +23,9 @@ sealed class BottomBarScreen(
         route = "PROFILE",
         icon = R.drawable.ic_navbar_person
     )
+
+    object NewScreen : BottomBarScreen(
+        route = "HOME/NEW_SCREEN",
+        icon = R.drawable.ic_navbar_home
+    )
 }

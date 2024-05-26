@@ -44,11 +44,12 @@ fun BottomBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val bottomBarDestination = screens.any { it.route == currentDestination?.route }
+    val bottomBarDestination = screens.any { screen ->
+        currentDestination?.route?.startsWith(screen.route) == true
+    }
     if (bottomBarDestination) {
         BottomNavigation(
-            modifier = Modifier
-                .height(72.dp) // Set the desired height here
+            modifier = Modifier.height(72.dp) // Set the desired height here
         ) {
             screens.forEach { screen ->
                 AddItem(
@@ -66,7 +67,7 @@ fun RowScope.AddItem(
     screen: BottomBarScreen,
     currentDestination: NavDestination?,
     navController: NavHostController
-) { val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
+) { val isSelected = currentDestination?.hierarchy?.any { it.route?.startsWith(screen.route) == true } == true
     BottomNavigationItem(
         icon = {
             Box(contentAlignment = Alignment.Center) {
