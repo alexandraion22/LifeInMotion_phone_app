@@ -83,8 +83,11 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
                             Divider()
                             DropdownMenuItem(
                                 onClick = {
-                                    navController.popBackStack()
-                                    navController.navigate(Graph.AUTHENTICATION)
+                                    navController.navigate(Graph.AUTHENTICATION) {
+                                        popUpTo(navController.graph.id){
+                                            inclusive = true
+                                        }
+                                    }
                                 }
                             ) {
                                 Text("Logout")

@@ -19,8 +19,11 @@ fun AuthNavGraph(navController: NavHostController) {
         composable(route = "LOGIN") {
             LoginContent(
                 onClick = {
-                    navController.popBackStack()
-                    navController.navigate(Graph.HOME)
+                    navController.navigate(Graph.HOME) {
+                        popUpTo(navController.graph.id){
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
