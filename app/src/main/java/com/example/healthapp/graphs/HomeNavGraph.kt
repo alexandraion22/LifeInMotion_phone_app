@@ -1,5 +1,6 @@
 package com.example.healthapp.graphs
 
+import SettingsScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -41,6 +42,9 @@ fun HomeNavGraph(navController: NavHostController) {
         }
         composable(route = BottomBarScreen.NewScreen.route) {
             NewScreen()
+        }
+        composable(route = "SETTINGS") {
+            SettingsScreen(navController = navController)
         }
         detailsNavGraph(navController = navController)
     }
