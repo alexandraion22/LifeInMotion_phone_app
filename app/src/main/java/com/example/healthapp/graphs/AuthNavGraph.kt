@@ -1,42 +1,31 @@
 package com.example.healthapp.graphs
 
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.example.healthapp.screens.LoginContent
-import com.example.healthapp.screens.ScreenContent
+import com.example.healthapp.screens.home.HomeScreen
 
-fun NavGraphBuilder.authNavGraph(navController: NavHostController) {
-    navigation(
+
+@Composable
+fun AuthNavGraph(navController: NavHostController) {
+    NavHost(
+        navController = navController,
         route = Graph.AUTHENTICATION,
-        startDestination = AuthScreen.Login.route
+        startDestination = "LOGIN"
     ) {
-        composable(route = AuthScreen.Login.route) {
+        composable(route = "LOGIN") {
             LoginContent(
                 onClick = {
                     navController.popBackStack()
                     navController.navigate(Graph.HOME)
-                },
-                onSignUpClick = {
-                    navController.navigate(AuthScreen.SignUp.route)
-                },
-                onForgotClick = {
-                    navController.navigate(AuthScreen.Forgot.route)
                 }
             )
         }
-        composable(route = AuthScreen.SignUp.route) {
-            ScreenContent(name = AuthScreen.SignUp.route) {}
-        }
-        composable(route = AuthScreen.Forgot.route) {
-            ScreenContent(name = AuthScreen.Forgot.route) {}
+        composable(route = Graph.HOME) {
+            HomeScreen()
         }
     }
-}
-
-sealed class AuthScreen(val route: String) {
-    object Login : AuthScreen(route = "LOGIN")
-    object SignUp : AuthScreen(route = "SIGN_UP")
-    object Forgot : AuthScreen(route = "FORGOT")
 }

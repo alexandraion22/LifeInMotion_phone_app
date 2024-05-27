@@ -13,9 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun LoginContent(
-    onClick: () -> Unit,
-    onSignUpClick: () -> Unit,
-    onForgotClick: () -> Unit
+    onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -27,18 +25,6 @@ fun LoginContent(
             text = "LOGIN",
             fontSize = MaterialTheme.typography.h3.fontSize,
             fontWeight = FontWeight.Bold
-        )
-        Text(
-            modifier = Modifier.clickable { onSignUpClick() },
-            text = "Sign Up",
-            fontSize = MaterialTheme.typography.body1.fontSize,
-            fontWeight = FontWeight.Medium
-        )
-        Text(
-            modifier = Modifier.clickable { onForgotClick() },
-            text = "Forgot Password",
-            fontSize = MaterialTheme.typography.body1.fontSize,
-            fontWeight = FontWeight.Medium
         )
     }
 }

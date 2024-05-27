@@ -6,11 +6,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.example.healthapp.BottomBarScreen
 import com.example.healthapp.screens.HomeContent
-import com.example.healthapp.screens.NewScreen
 import com.example.healthapp.screens.ScreenContent
+import com.example.healthapp.screens.StepsContent
+import com.example.healthapp.screens.home.AuthScreen
 
 @Composable
 fun HomeNavGraph(navController: NavHostController) {
@@ -40,38 +40,14 @@ fun HomeNavGraph(navController: NavHostController) {
                 onClick = { }
             )
         }
-        composable(route = BottomBarScreen.NewScreen.route) {
-            NewScreen()
+        composable(route = BottomBarScreen.Steps.route) {
+            StepsContent()
         }
         composable(route = "SETTINGS") {
             SettingsScreen(navController = navController)
         }
-        detailsNavGraph(navController = navController)
-    }
-}
-
-fun NavGraphBuilder.detailsNavGraph(navController: NavHostController) {
-    navigation(
-        route = Graph.DETAILS,
-        startDestination = DetailsScreen.Information.route
-    ) {
-        composable(route = DetailsScreen.Information.route) {
-            ScreenContent(name = DetailsScreen.Information.route) {
-                navController.navigate(DetailsScreen.Overview.route)
-            }
-        }
-        composable(route = DetailsScreen.Overview.route) {
-            ScreenContent(name = DetailsScreen.Overview.route) {
-                navController.popBackStack(
-                    route = DetailsScreen.Information.route,
-                    inclusive = false
-                )
-            }
+        composable(route = Graph.AUTHENTICATION) {
+            AuthScreen()
         }
     }
-}
-
-sealed class DetailsScreen(val route: String) {
-    object Information : DetailsScreen(route = "INFORMATION")
-    object Overview : DetailsScreen(route = "OVERVIEW")
 }

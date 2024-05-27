@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.example.healthapp.BottomBarScreen
+import com.example.healthapp.graphs.Graph
 
 @Composable
 fun HomeContent(navController: NavHostController) {
@@ -16,8 +17,10 @@ fun HomeContent(navController: NavHostController) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Button(onClick = { navController.navigate(BottomBarScreen.NewScreen.route) }) {
-            Text(text = "Go to New Screen")
+        Button(onClick = {
+                navController.navigate("HOME/STEPS")
+            }) {
+            Text(text = "Go to Steps screen")
         }
     }
 }

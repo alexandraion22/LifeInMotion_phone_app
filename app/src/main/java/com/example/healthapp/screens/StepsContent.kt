@@ -9,12 +9,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun NewScreen() {
+fun StepsContent() {
     // Your UI for the new screen
     Box(
         modifier = Modifier.padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "This is the new screen")
+        Text(text = "This is the steps screen")
     }
 }

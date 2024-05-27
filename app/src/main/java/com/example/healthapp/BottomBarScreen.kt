@@ -24,8 +24,8 @@ sealed class BottomBarScreen(
         icon = R.drawable.ic_navbar_person
     )
 
-    object NewScreen : BottomBarScreen(
-        route = "HOME/NEW_SCREEN",
+    object Steps : BottomBarScreen(
+        route = "HOME/STEPS",
         icon = R.drawable.ic_navbar_home
     )
 }
