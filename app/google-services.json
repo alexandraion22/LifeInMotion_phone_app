@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "926987864932",
+    "project_id": "licenta-d52aa",
+    "storage_bucket": "licenta-d52aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:926987864932:android:8817ae4850f8c29b618871",
+        "android_client_info": {
+          "package_name": "com.example.healthapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4MpEEp27cvN11Jc0DJTi-2J4UI1ybbrI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
