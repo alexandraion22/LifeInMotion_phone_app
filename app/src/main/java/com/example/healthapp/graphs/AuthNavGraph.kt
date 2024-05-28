@@ -18,13 +18,7 @@ fun AuthNavGraph(navController: NavHostController) {
     ) {
         composable(route = "LOGIN") {
             LoginContent(
-                onClick = {
-                    navController.navigate(Graph.HOME) {
-                        popUpTo(navController.graph.id){
-                            inclusive = true
-                        }
-                    }
-                }
+                navController = navController
             )
         }
         composable(route = Graph.HOME) {

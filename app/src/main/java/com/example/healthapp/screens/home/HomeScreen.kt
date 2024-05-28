@@ -1,5 +1,6 @@
 package com.example.healthapp.screens.home
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -26,7 +27,9 @@ import androidx.compose.ui.res.painterResource
 import com.example.healthapp.R
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.screens.crop
+import com.google.firebase.auth.FirebaseAuth
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun HomeScreen(navController: NavHostController = rememberNavController()) {
     Scaffold(
@@ -83,6 +86,7 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
                             Divider()
                             DropdownMenuItem(
                                 onClick = {
+                                    FirebaseAuth.getInstance().signOut()
                                     navController.navigate(Graph.AUTHENTICATION) {
                                         popUpTo(navController.graph.id){
                                             inclusive = true
