@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -83,11 +84,22 @@ fun LoginContent(
                     hostState = it,
                     snackbar = { snackbarData ->
                         Snackbar(
-                            snackbarData,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            content = {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = snackbarData.message,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
                         )
                     },
-                    modifier = Modifier.padding(bottom = 100.dp) // Adjust this value to show Snackbar higher up
+                    modifier = Modifier.padding(bottom = 140.dp) // Adjust this value to show Snackbar higher up
                 )
             }
         ) {
@@ -172,7 +184,7 @@ fun LoginContent(
                         if (email.isNotBlank() && password.isNotBlank()) {
                             loginUser(email, password)
                         } else {
-                            errorMessage = "Please enter both the e-mail and the password"
+                            errorMessage = "Please enter both the e-mail and the password."
                             coroutineScope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar(errorMessage ?: "Unknown error")
                             }
