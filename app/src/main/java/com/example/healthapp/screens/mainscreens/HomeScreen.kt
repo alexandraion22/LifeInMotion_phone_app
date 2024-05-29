@@ -120,7 +120,7 @@ fun BottomBar(navController: NavHostController) {
     }
     if (bottomBarDestination) {
         BottomNavigation(
-            modifier = Modifier.height(72.dp) // Set the desired height here
+            modifier = Modifier.height(60.dp) // Set the desired height here
         ) {
             screens.forEach { screen ->
                 AddItem(
@@ -150,14 +150,15 @@ fun RowScope.AddItem(
                         MaterialTheme.colors.primaryVariant
                     } else {
                         MaterialTheme.colors.secondaryVariant
-                    }
+                    },
+                    modifier = Modifier.size(36.dp)
                 )
                 if (isSelected) {
                     Box(
                         modifier = Modifier
-                            .size(6.dp)
+                            .size(4.dp)
                             .align(Alignment.BottomCenter)
-                            .offset(y = 8.dp)
+                            .offset(y = 4.dp)
                             .background(
                                 color = MaterialTheme.colors.primaryVariant,
                                 shape = CircleShape
