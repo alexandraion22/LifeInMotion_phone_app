@@ -1,4 +1,4 @@
-package com.example.healthapp.screens
+package com.example.healthapp.screens.content.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box

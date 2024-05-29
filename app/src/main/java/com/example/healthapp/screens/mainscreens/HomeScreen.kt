@@ -1,7 +1,6 @@
-package com.example.healthapp.screens.home
+package com.example.healthapp.screens.mainscreens
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -57,7 +56,7 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
     }
     if (bottomBarDestination) {
         TopAppBar(
-            title = { Text("Health App") },
+            title = { Text("Life in Motion") },
             actions = {
                 IconButton(onClick = { expanded = true }) {
                     Icon(

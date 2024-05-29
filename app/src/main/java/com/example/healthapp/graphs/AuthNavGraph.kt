@@ -1,12 +1,11 @@
 package com.example.healthapp.graphs
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.healthapp.screens.LoginContent
-import com.example.healthapp.screens.home.HomeScreen
+import com.example.healthapp.screens.content.auth.LoginContent
+import com.example.healthapp.screens.mainscreens.HomeScreen
 
 
 @Composable

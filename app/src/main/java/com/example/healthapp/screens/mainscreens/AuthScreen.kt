@@ -1,4 +1,4 @@
-package com.example.healthapp.screens.home
+package com.example.healthapp.screens.mainscreens
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController

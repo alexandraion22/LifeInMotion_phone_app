@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsContent(navController: NavController) {
     // Your UI for the new screen
     Box(
         modifier = Modifier.padding(16.dp),

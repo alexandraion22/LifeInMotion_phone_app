@@ -1,16 +1,15 @@
 package com.example.healthapp.graphs
 
-import SettingsScreen
+import SettingsContent
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.healthapp.BottomBarScreen
-import com.example.healthapp.screens.HomeContent
-import com.example.healthapp.screens.ScreenContent
-import com.example.healthapp.screens.StepsContent
-import com.example.healthapp.screens.home.AuthScreen
+import com.example.healthapp.screens.content.home.HomeContent
+import com.example.healthapp.screens.content.home.ScreenContent
+import com.example.healthapp.screens.content.home.StepsContent
+import com.example.healthapp.screens.mainscreens.AuthScreen
 
 @Composable
 fun HomeNavGraph(navController: NavHostController) {
@@ -44,7 +43,7 @@ fun HomeNavGraph(navController: NavHostController) {
             StepsContent()
         }
         composable(route = "SETTINGS") {
-            SettingsScreen(navController = navController)
+            SettingsContent(navController = navController)
         }
         composable(route = Graph.AUTHENTICATION) {
             AuthScreen()
