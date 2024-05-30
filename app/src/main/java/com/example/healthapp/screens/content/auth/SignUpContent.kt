@@ -1,12 +1,8 @@
 package com.example.healthapp.screens.content.auth
-
 import android.annotation.SuppressLint
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.*
@@ -14,17 +10,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -38,14 +27,16 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginContent(navController: NavHostController) {
+fun SignUpContent(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val auth = FirebaseAuth.getInstance()
     val passwordFocusRequester = remember { FocusRequester() }
+    val confirmPasswordFocusRequester = remember { FocusRequester() }
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -54,8 +45,8 @@ fun LoginContent(navController: NavHostController) {
         backgroundColor = Color.LightGray.copy(alpha = 0.4f)
     )
 
-    fun loginUser(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
+    fun signUpUser(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     navController.navigate(Graph.HOME) {
@@ -75,71 +66,57 @@ fun LoginContent(navController: NavHostController) {
             scaffoldState = scaffoldState,
             snackbarHost = { CustomSnackbarHost(it) }
         ) {
-            LoginForm(
+            SignUpForm(
                 email = email,
                 onEmailChange = { email = it },
                 password = password,
                 onPasswordChange = { password = it },
+                confirmPassword = confirmPassword,
+                onConfirmPasswordChange = { confirmPassword = it },
                 passwordVisible = passwordVisible,
                 onPasswordVisibilityChange = { passwordVisible = !passwordVisible },
-                onLoginClick = {
+                onSignUpClick = {
                     keyboardController?.hide()
-                    if (email.isNotBlank() && password.isNotBlank()) {
-                        loginUser(email, password)
+                    if (email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()) {
+                        if (password == confirmPassword) {
+                            signUpUser(email, password)
+                        } else {
+                            errorMessage = "Passwords do not match."
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(errorMessage ?: "Unknown error")
+                            }
+                        }
                     } else {
-                        errorMessage = "Please enter both the e-mail and the password."
+                        errorMessage = "Please fill in all fields."
                         coroutineScope.launch {
                             scaffoldState.snackbarHostState.showSnackbar(errorMessage ?: "Unknown error")
                         }
                     }
                 },
                 passwordFocusRequester = passwordFocusRequester,
+                confirmPasswordFocusRequester = confirmPasswordFocusRequester,
                 onDone = { keyboardController?.hide() },
-                textFieldColors = customTextFieldColors(),
-                navController = navController
+                textFieldColors = customTextFieldColors()
             )
         }
     }
 }
 
 @Composable
-fun CustomSnackbarHost(snackbarHostState: SnackbarHostState) {
-    SnackbarHost(
-        hostState = snackbarHostState,
-        snackbar = { snackbarData ->
-            Snackbar(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                content = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = snackbarData.message,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            )
-        },
-        modifier = Modifier.padding(bottom = 140.dp)
-    )
-}
-
-@Composable
-fun LoginForm(
+fun SignUpForm(
     email: String,
     onEmailChange: (String) -> Unit,
     password: String,
     onPasswordChange: (String) -> Unit,
+    confirmPassword: String,
+    onConfirmPasswordChange: (String) -> Unit,
     passwordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
-    onLoginClick: () -> Unit,
+    onSignUpClick: () -> Unit,
     passwordFocusRequester: FocusRequester,
+    confirmPasswordFocusRequester: FocusRequester,
     onDone: () -> Unit,
-    textFieldColors: TextFieldColors,
-    navController: NavHostController
+    textFieldColors: TextFieldColors
 ) {
     Column(
         modifier = Modifier
@@ -149,7 +126,7 @@ fun LoginForm(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Login",
+            text = "Sign Up",
             style = MaterialTheme.typography.h4,
             modifier = Modifier.padding(bottom = 24.dp)
         )
@@ -167,12 +144,21 @@ fun LoginForm(
             passwordVisible = passwordVisible,
             onPasswordVisibilityChange = onPasswordVisibilityChange,
             passwordFocusRequester = passwordFocusRequester,
-            onDone = onDone,
+            onDone = { confirmPasswordFocusRequester.requestFocus() },
+            textFieldColors = textFieldColors
+        )
+        CustomPasswordField(
+            value = confirmPassword,
+            onValueChange = onConfirmPasswordChange,
+            passwordVisible = passwordVisible,
+            onPasswordVisibilityChange = onPasswordVisibilityChange,
+            passwordFocusRequester = confirmPasswordFocusRequester,
+            onDone = { onDone() },
             textFieldColors = textFieldColors
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = onLoginClick,
+            onClick = onSignUpClick,
             modifier = Modifier
                 .fillMaxWidth(0.6f)
                 .height(48.dp),
@@ -180,84 +166,10 @@ fun LoginForm(
             colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
         ) {
             Text(
-                "Login",
+                "Sign Up",
                 color = Color.White,
                 fontSize = 18.sp
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Don’t have an account?",
-            style = MaterialTheme.typography.body1,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        Text(
-            modifier = Modifier.clickable { navController.navigate("SIGNUP")},
-            text = "Sign up",
-            style = MaterialTheme.typography.body1,
-            color = MaterialTheme.colors.secondary,
-            fontWeight = FontWeight.Bold
-        )
     }
-}
-
-@Composable
-fun CustomTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    imeAction: ImeAction,
-    keyboardActions: KeyboardActions,
-    textFieldColors: TextFieldColors
-) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp)
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = imeAction),
-        keyboardActions = keyboardActions,
-        shape = RoundedCornerShape(16.dp),
-        colors = textFieldColors
-    )
-}
-
-@Composable
-fun CustomPasswordField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    passwordVisible: Boolean,
-    onPasswordVisibilityChange: () -> Unit,
-    passwordFocusRequester: FocusRequester,
-    onDone: () -> Unit,
-    textFieldColors: TextFieldColors
-) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text("Password") },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp)
-            .focusRequester(passwordFocusRequester)
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
-        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = {
-            val image = if (passwordVisible) R.drawable.ic_visibility_on else R.drawable.ic_visibility_off
-            IconButton(onClick = onPasswordVisibilityChange) {
-                Icon(
-                    painter = painterResource(id = image),
-                    contentDescription = stringResource(R.string.toggle_password_visibility),
-                    tint = CoolGray
-                )
-            }
-        },
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = { onDone() }),
-        shape = RoundedCornerShape(16.dp),
-        colors = textFieldColors
-    )
 }

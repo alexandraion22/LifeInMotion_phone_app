@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.healthapp.screens.content.auth.LoginContent
+import com.example.healthapp.screens.content.auth.SignUpContent
 import com.example.healthapp.screens.mainscreens.HomeScreen
 
 
@@ -17,6 +18,11 @@ fun AuthNavGraph(navController: NavHostController) {
     ) {
         composable(route = "LOGIN") {
             LoginContent(
+                navController = navController
+            )
+        }
+        composable(route = "SIGNUP") {
+            SignUpContent(
                 navController = navController
             )
         }
