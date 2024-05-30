@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -168,9 +169,10 @@ fun LoginForm(
             onPasswordVisibilityChange = onPasswordVisibilityChange,
             passwordFocusRequester = passwordFocusRequester,
             onDone = onDone,
-            textFieldColors = textFieldColors
+            textFieldColors = textFieldColors,
+            label = "Password"
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = onLoginClick,
             modifier = Modifier
@@ -195,7 +197,7 @@ fun LoginForm(
             modifier = Modifier.clickable { navController.navigate("SIGNUP")},
             text = "Sign up",
             style = MaterialTheme.typography.body1,
-            color = MaterialTheme.colors.secondary,
+            color = MaterialTheme.colors.primaryVariant,
             fontWeight = FontWeight.Bold
         )
     }
@@ -208,6 +210,7 @@ fun CustomTextField(
     label: String,
     imeAction: ImeAction,
     keyboardActions: KeyboardActions,
+    keyboardType: KeyboardType = KeyboardType.Text,
     textFieldColors: TextFieldColors
 ) {
     TextField(
@@ -218,12 +221,16 @@ fun CustomTextField(
             .fillMaxWidth()
             .padding(bottom = 8.dp)
             .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
-        keyboardOptions = KeyboardOptions.Default.copy(imeAction = imeAction),
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = imeAction,
+            keyboardType = keyboardType
+        ),
         keyboardActions = keyboardActions,
         shape = RoundedCornerShape(16.dp),
         colors = textFieldColors
     )
 }
+
 
 @Composable
 fun CustomPasswordField(
@@ -233,12 +240,13 @@ fun CustomPasswordField(
     onPasswordVisibilityChange: () -> Unit,
     passwordFocusRequester: FocusRequester,
     onDone: () -> Unit,
-    textFieldColors: TextFieldColors
+    textFieldColors: TextFieldColors,
+    label: String
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text("Password") },
+        label = { Text(label) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp)

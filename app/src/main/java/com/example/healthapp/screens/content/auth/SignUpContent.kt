@@ -1,5 +1,6 @@
 package com.example.healthapp.screens.content.auth
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -13,13 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.healthapp.R
 import com.example.healthapp.graphs.Graph
-import com.example.healthapp.ui.theme.CoolGray
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -49,9 +49,7 @@ fun SignUpContent(navController: NavHostController) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    navController.navigate(Graph.HOME) {
-                        popUpTo(navController.graph.id) { inclusive = true }
-                    }
+                    navController.navigate("SIGNUP/DETAILS")
                 } else {
                     errorMessage = task.exception?.message
                     coroutineScope.launch {
@@ -96,7 +94,8 @@ fun SignUpContent(navController: NavHostController) {
                 passwordFocusRequester = passwordFocusRequester,
                 confirmPasswordFocusRequester = confirmPasswordFocusRequester,
                 onDone = { keyboardController?.hide() },
-                textFieldColors = customTextFieldColors()
+                textFieldColors = customTextFieldColors(),
+                navController = navController
             )
         }
     }
@@ -116,7 +115,8 @@ fun SignUpForm(
     passwordFocusRequester: FocusRequester,
     confirmPasswordFocusRequester: FocusRequester,
     onDone: () -> Unit,
-    textFieldColors: TextFieldColors
+    textFieldColors: TextFieldColors,
+    navController: NavHostController
 ) {
     Column(
         modifier = Modifier
@@ -141,6 +141,7 @@ fun SignUpForm(
         CustomPasswordField(
             value = password,
             onValueChange = onPasswordChange,
+            label = "Password",
             passwordVisible = passwordVisible,
             onPasswordVisibilityChange = onPasswordVisibilityChange,
             passwordFocusRequester = passwordFocusRequester,
@@ -154,9 +155,10 @@ fun SignUpForm(
             onPasswordVisibilityChange = onPasswordVisibilityChange,
             passwordFocusRequester = confirmPasswordFocusRequester,
             onDone = { onDone() },
-            textFieldColors = textFieldColors
+            textFieldColors = textFieldColors,
+            label = "Confirm Password"
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = onSignUpClick,
             modifier = Modifier
@@ -171,5 +173,18 @@ fun SignUpForm(
                 fontSize = 18.sp
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Already have an account?",
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            modifier = Modifier.clickable { navController.navigate("LOGIN")},
+            text = "Login",
+            style = MaterialTheme.typography.body1,
+            color = MaterialTheme.colors.primaryVariant,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
