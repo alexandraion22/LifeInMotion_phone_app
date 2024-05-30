@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.healthapp.R
 import com.example.healthapp.graphs.Graph
+import com.example.healthapp.ui.theme.CoolGray
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -247,7 +248,8 @@ fun CustomPasswordField(
             IconButton(onClick = onPasswordVisibilityChange) {
                 Icon(
                     painter = painterResource(id = image),
-                    contentDescription = stringResource(R.string.toggle_password_visibility)
+                    contentDescription = stringResource(R.string.toggle_password_visibility),
+                    tint = CoolGray
                 )
             }
         },

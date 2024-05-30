@@ -72,7 +72,8 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
                     onDismissRequest = { expanded = false }
                 ) {
                     Surface(
-                        shape = MaterialTheme.shapes.medium // Apply rounded corners here
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.width(140.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(0.dp)
@@ -150,7 +151,7 @@ fun RowScope.AddItem(
                     tint = if (isSelected) {
                         MaterialTheme.colors.primaryVariant
                     } else {
-                        MaterialTheme.colors.secondaryVariant
+                        MaterialTheme.colors.onPrimary
                     },
                     modifier = Modifier.size(36.dp)
                 )
