@@ -78,7 +78,8 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
                             modifier = Modifier.padding(0.dp)
                         ) {
                             DropdownMenuItem(
-                                onClick = { navController.navigate("SETTINGS") }
+                                onClick = { expanded = false
+                                    navController.navigate("SETTINGS") }
                             ) {
                                 Text("Settings")
                             }

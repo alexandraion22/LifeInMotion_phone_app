@@ -12,25 +12,28 @@ import androidx.compose.ui.text.font.FontFamily
 import com.example.healthapp.R
 
 private val DarkColorPalette = darkColors(
+    primary = Color.Black,
+    onPrimary = Color.White,
+    primaryVariant = PurpleNavbar,
+    secondary = PurpleButtons,
+    secondaryVariant = Color.White
 )
 
 private val LightColorPalette = lightColors(
     primary = Color.White,
     onPrimary = Color.Black,
     primaryVariant = PurpleNavbar,
-    secondaryVariant = Color.Black,
-    secondary = PurpleButtons
+    secondary = PurpleButtons,
+    secondaryVariant = Color.Black
 )
 
+// Define font and typography
 val SpaceGrotesk = FontFamily(
     Font(R.font.spacegrotesksemibold)
 )
-
-// Define the custom typography for your app
 val HealthAppTypography = Typography(
-    defaultFontFamily = SpaceGrotesk,
+    defaultFontFamily = SpaceGrotesk
 )
-
 
 @Composable
 fun HealthAppTheme(
@@ -45,8 +48,8 @@ fun HealthAppTheme(
 
     MaterialTheme(
         colors = colors,
+        typography = HealthAppTypography,
         shapes = Shapes,
-        content = content,
-        typography = HealthAppTypography
+        content = content
     )
 }

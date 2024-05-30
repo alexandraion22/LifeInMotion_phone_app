@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity() {
                             startDestination.value = Graph.AUTHENTICATION
                     }
                 }
-
                 RootNavigationGraph(navController = rememberNavController(), startDestination = startDestination.value)
             }
         }

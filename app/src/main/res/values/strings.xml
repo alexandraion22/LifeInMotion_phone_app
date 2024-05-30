@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LifeInMotion</string>
+    <string name="toggle_password_visibility">Toggle Password Visibility</string>
 </resources>
