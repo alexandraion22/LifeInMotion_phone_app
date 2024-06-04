@@ -25,17 +25,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
 import com.example.healthapp.R
 import com.example.healthapp.graphs.Graph
+import com.example.healthapp.screens.content.auth.UserViewModel
 import com.example.healthapp.screens.crop
 import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavHostController = rememberNavController()) {
+fun HomeScreen(
+    navController: NavHostController = rememberNavController(),
+    userViewModel: UserViewModel
+) {
     Scaffold(
         topBar = { TopBar(navController = navController) },
         bottomBar = { BottomBar(navController = navController) }
     ) {
-        HomeNavGraph(navController = navController)
+        HomeNavGraph(navController = navController, userViewModel = userViewModel)
     }
 }
 

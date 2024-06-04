@@ -7,9 +7,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.graphs.RootNavigationGraph
+import com.example.healthapp.screens.content.auth.UserViewModel
+import com.example.healthapp.screens.content.auth.UserViewModelFactory
 import com.example.healthapp.ui.theme.HealthAppTheme
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +25,10 @@ class MainActivity : ComponentActivity() {
             HealthAppTheme {
                 val startDestination = remember { mutableStateOf(Graph.WELCOME) }
                 val scope = rememberCoroutineScope()
+                val userViewModel: UserViewModel = viewModel(
+                    factory = UserViewModelFactory(application)
+                )
+
                 LaunchedEffect(Unit) {
                     scope.launch(Dispatchers.IO) {
                         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -31,7 +38,7 @@ class MainActivity : ComponentActivity() {
                             startDestination.value = Graph.AUTHENTICATION
                     }
                 }
-                RootNavigationGraph(navController = rememberNavController(), startDestination = startDestination.value)
+                RootNavigationGraph(navController = rememberNavController(), startDestination = startDestination.value, userViewModel = userViewModel)
             }
         }
     }

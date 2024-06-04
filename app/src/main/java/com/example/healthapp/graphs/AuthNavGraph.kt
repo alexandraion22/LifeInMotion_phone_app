@@ -7,11 +7,12 @@ import androidx.navigation.compose.composable
 import com.example.healthapp.screens.content.auth.LoginContent
 import com.example.healthapp.screens.content.auth.SignUpContent
 import com.example.healthapp.screens.content.auth.SignUpDetailsContent
+import com.example.healthapp.screens.content.auth.UserViewModel
 import com.example.healthapp.screens.mainscreens.HomeScreen
 
 
 @Composable
-fun AuthNavGraph(navController: NavHostController) {
+fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel) {
     NavHost(
         navController = navController,
         route = Graph.AUTHENTICATION,
@@ -29,11 +30,12 @@ fun AuthNavGraph(navController: NavHostController) {
         }
         composable(route = "SIGNUP/DETAILS") {
             SignUpDetailsContent(
-                navController = navController
+                navController = navController,
+                userViewModel = userViewModel
             )
         }
         composable(route = Graph.HOME) {
-            HomeScreen()
+            HomeScreen(userViewModel = userViewModel)
         }
     }
 }
