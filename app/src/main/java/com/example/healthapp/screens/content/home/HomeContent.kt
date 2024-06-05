@@ -9,7 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.example.healthapp.screens.content.auth.UserViewModel
+import com.example.healthapp.database.users.UserViewModel
 import kotlinx.coroutines.launch
 
 @Composable

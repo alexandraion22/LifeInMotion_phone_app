@@ -9,10 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.healthapp.database.users.UserViewModel
+import com.example.healthapp.database.users.UserViewModelFactory
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.graphs.RootNavigationGraph
-import com.example.healthapp.screens.content.auth.UserViewModel
-import com.example.healthapp.screens.content.auth.UserViewModelFactory
 import com.example.healthapp.ui.theme.HealthAppTheme
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers

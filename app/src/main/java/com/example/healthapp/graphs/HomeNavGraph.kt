@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.healthapp.BottomBarScreen
-import com.example.healthapp.screens.content.auth.UserViewModel
+import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.content.home.HomeContent
 import com.example.healthapp.screens.content.home.ScreenContent
 import com.example.healthapp.screens.content.home.StepsContent
