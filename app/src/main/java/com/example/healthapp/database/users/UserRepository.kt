@@ -8,4 +8,12 @@ class UserRepository(private val userDao: UserDao) {
     suspend fun getUser(): User? {
         return userDao.getUser()
     }
+
+    suspend fun deleteAllUsers() {
+        userDao.deleteAll()
+    }
+
+    suspend fun getAllUsers(): List<User> {
+        return userDao.getAllUsers()
+    }
 }

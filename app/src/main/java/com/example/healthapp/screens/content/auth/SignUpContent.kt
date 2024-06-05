@@ -19,7 +19,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.healthapp.graphs.Graph
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -47,11 +46,23 @@ fun SignUpContent(navController: NavHostController) {
 
     fun signUpUser(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    navController.navigate("SIGNUP/DETAILS")
+            .addOnCompleteListener { taskSignIn ->
+                if (taskSignIn.isSuccessful) {
+                    auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { taskLogin ->
+                            if (taskLogin.isSuccessful)
+                                navController.navigate("SIGNUP/DETAILS")
+                            else {
+                                errorMessage = taskLogin.exception?.message
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar(
+                                        errorMessage ?: "Unknown error"
+                                    )
+                                }
+                            }
+                        }
                 } else {
-                    errorMessage = task.exception?.message
+                    errorMessage = taskSignIn.exception?.message
                     coroutineScope.launch {
                         scaffoldState.snackbarHostState.showSnackbar(errorMessage ?: "Unknown error")
                     }
@@ -62,7 +73,7 @@ fun SignUpContent(navController: NavHostController) {
     CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
         Scaffold(
             scaffoldState = scaffoldState,
-            snackbarHost = { CustomSnackbarHost(it) }
+            snackbarHost = { CustomSnackbarHost(it, Modifier.padding(bottom = 140.dp)) }
         ) {
             SignUpForm(
                 email = email,
@@ -136,7 +147,7 @@ fun SignUpForm(
             label = "E-mail",
             imeAction = ImeAction.Next,
             keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
-            textFieldColors = textFieldColors
+            textFieldColors = textFieldColors,
         )
         CustomPasswordField(
             value = password,

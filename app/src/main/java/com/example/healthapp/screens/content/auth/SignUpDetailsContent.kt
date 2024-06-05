@@ -1,5 +1,6 @@
 package com.example.healthapp.screens.content.auth
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,129 +24,168 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.focus.FocusRequester
 import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.ui.theme.customTextFieldColors
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserViewModel) {
     val keyboardController = LocalSoftwareKeyboardController.current
-
-    var fullName by remember { mutableStateOf("Alexandra Ion") }
+    var fullName by remember { mutableStateOf("") }
     var age by remember { mutableStateOf(0) }
     var height by remember { mutableStateOf(0) }
     var weight by remember { mutableStateOf(0) }
     val textFieldColors = customTextFieldColors()
     val genders = listOf("Female", "Male")
     var selectedIndex by rememberSaveable { mutableStateOf(0) }
+    val ageFocusRequester = remember { FocusRequester() }
+    val heightFocusRequester = remember { FocusRequester() }
+    val weightFocusRequester = remember { FocusRequester() }
+    val scaffoldState = rememberScaffoldState()
+    val coroutineScope = rememberCoroutineScope()
+    val firebaseAuth = FirebaseAuth.getInstance()
+    val customTextSelectionColors = TextSelectionColors(
+        handleColor = Color.Gray,
+        backgroundColor = Color.LightGray.copy(alpha = 0.4f)
+    )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Personalise your experience",
-            fontSize = 32.sp,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-
-        Text(
-            text = "Please complete the following fields in order to have a more personalised experience.",
-            fontSize = 15.sp,
-            color = colors.primaryVariant,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        CustomTextField(
-            value = fullName,
-            onValueChange = { fullName = it },
-            label = "Full Name",
-            imeAction = ImeAction.Done,
-            keyboardActions = KeyboardActions(onDone = { /* Handle done action if needed */ }),
-            textFieldColors = textFieldColors
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-        CustomTextField(
-            value = if (age == 0) "" else age.toString(),
-            onValueChange = { age = if (it.isEmpty()) 0 else it.toInt() },
-            label = "Age",
-            imeAction = ImeAction.Done,
-            keyboardActions = KeyboardActions(onDone = { /* Handle done action if needed */ }),
-            keyboardType = KeyboardType.Number,
-            textFieldColors = textFieldColors
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-        CustomTextField(
-            value = if (height == 0) "" else height.toString(),
-            onValueChange = { height = if (it.isEmpty()) 0 else it.toInt() },
-            label = "Height (cm)",
-            imeAction = ImeAction.Done,
-            keyboardActions = KeyboardActions(onDone = { /* Handle done action if needed */ }),
-            keyboardType = KeyboardType.Number,
-            textFieldColors = textFieldColors
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-        CustomTextField(
-            value = if (weight == 0) "" else weight.toString(),
-            onValueChange = { weight = if (it.isEmpty()) 0 else it.toInt() },
-            label = "Weight (kg)",
-            imeAction = ImeAction.Done,
-            keyboardActions = KeyboardActions(onDone = { /* Handle done action if needed */ }),
-            keyboardType = KeyboardType.Number,
-            textFieldColors = textFieldColors
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-        DropdownList(itemList = genders, selectedIndex = selectedIndex, onItemClick = { selectedIndex = it })
-
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "* If you do not know the exact values or do not want to disclose them, you can enter an approx. value.",
-            fontSize = 12.sp,
-            color = MaterialTheme.colors.primaryVariant,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-        Button(
-            onClick = {
-                keyboardController?.hide()
-                val user = User(
-                    fullName = fullName,
-                    age = age,
-                    height = height,
-                    weight = weight,
-                    gender = genders[selectedIndex]
-                )
-                userViewModel.insert(user)
-                Log.d("SignUpDetailsContent", "User data saved: $user")
-                navController.navigate(Graph.HOME) {
-                    popUpTo(navController.graph.id) { inclusive = true }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = colors.secondary)
+    CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
+        Scaffold(
+            scaffoldState = scaffoldState,
+            snackbarHost = { CustomSnackbarHost(it, Modifier.padding(bottom = 12.dp)) }
         ) {
-            Text(
-                "Continue",
-                color = Color.White,
-                fontSize = 18.sp
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Personalise your experience",
+                    fontSize = 32.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
+                Text(
+                    text = "Please complete the following fields in order to have a more personalised experience.",
+                    fontSize = 15.sp,
+                    color = colors.primaryVariant,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                CustomTextField(
+                    value = fullName,
+                    onValueChange = { fullName = it },
+                    label = "Full Name",
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { ageFocusRequester.requestFocus() }),
+                    textFieldColors = textFieldColors
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                CustomTextField(
+                    value = if (age == 0) "" else age.toString(),
+                    onValueChange = { age = try { it.toInt() } catch (e: NumberFormatException) { 0 } },
+                    label = "Age",
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { heightFocusRequester.requestFocus() }),
+                    keyboardType = KeyboardType.Number,
+                    textFieldColors = textFieldColors,
+                    focusRequester = ageFocusRequester
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                CustomTextField(
+                    value = if (height == 0) "" else height.toString(),
+                    onValueChange = { height = try { it.toInt() } catch (e: NumberFormatException) { 0 } },
+                    label = "Height (cm)",
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { weightFocusRequester.requestFocus() }),
+                    keyboardType = KeyboardType.Number,
+                    textFieldColors = textFieldColors,
+                    focusRequester = heightFocusRequester
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                CustomTextField(
+                    value = if (weight == 0) "" else weight.toString(),
+                    onValueChange = { weight = try { it.toInt() } catch (e: NumberFormatException) { 0 } },
+                    label = "Weight (kg)",
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                    keyboardType = KeyboardType.Number,
+                    textFieldColors = textFieldColors,
+                    focusRequester = weightFocusRequester
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                DropdownList(
+                    itemList = genders,
+                    selectedIndex = selectedIndex,
+                    onItemClick = { selectedIndex = it })
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "* If you do not know the exact values or do not want to disclose them, you can enter an approx. value.",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colors.primaryVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Button(
+                    onClick = {
+                        keyboardController?.hide()
+                        val validationMessage = getValidationMessage(fullName, age, height, weight)
+                        val uid = firebaseAuth.currentUser?.uid
+                        if (validationMessage == null) {
+                            val user = User(
+                                uid = uid!!,
+                                fullName = fullName,
+                                age = age,
+                                height = height,
+                                weight = weight,
+                                gender = genders[selectedIndex]
+                            )
+                            userViewModel.deleteAllUsers()
+                            // TODO: delete all the other databases content
+                            userViewModel.insert(user)
+                            Log.d("SignUpDetailsContent", "User data saved: $user")
+                            navController.navigate(Graph.HOME) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        } else {
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar(validationMessage)
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = colors.secondary)
+                ) {
+                    Text(
+                        "Continue",
+                        color = Color.White,
+                        fontSize = 18.sp
+                    )
+                }
+            }
         }
     }
 }
@@ -165,13 +205,25 @@ fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(if (showDropdown) RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) else RoundedCornerShape(16.dp))
+                .clip(
+                    if (showDropdown) RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp
+                    ) else RoundedCornerShape(16.dp)
+                )
                 .clickable {
                     handleDismissRequest = false
                     showDropdown = !showDropdown
                 }
                 .background(colors.primary)
-                .border(1.dp, Color(0xFFE2E8F0), if (showDropdown) RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) else RoundedCornerShape(16.dp)),
+                .border(
+                    1.dp,
+                    Color(0xFFE2E8F0),
+                    if (showDropdown) RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp
+                    ) else RoundedCornerShape(16.dp)
+                ),
             contentAlignment = Alignment.CenterStart
         ) {
             Row(
@@ -237,4 +289,23 @@ fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) 
             }
         }
     }
+}
+
+fun getValidationMessage(fullName: String, age: Int, height: Int, weight: Int): String? {
+    val fullNamePattern = Regex("^[A-Z][a-z]*(\\s[A-Z][a-z]*)+$")
+
+    if (fullName.isBlank() || !fullName.matches(fullNamePattern)) {
+        return "The name must start with capital letters and contain the first and last names ."
+    }
+
+    if (age !in 1..100) {
+        return "The age must have a valid value."
+    }
+    if (height <= 0) {
+        return "The height must have a valid value."
+    }
+    if (weight <= 0) {
+        return "The weight must have a valid value."
+    }
+    return null
 }

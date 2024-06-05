@@ -74,7 +74,7 @@ fun LoginContent(navController: NavHostController) {
     CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
         Scaffold(
             scaffoldState = scaffoldState,
-            snackbarHost = { CustomSnackbarHost(it) }
+            snackbarHost = { CustomSnackbarHost(it, Modifier.padding(bottom = 140.dp)) }
         ) {
             LoginForm(
                 email = email,
@@ -104,7 +104,7 @@ fun LoginContent(navController: NavHostController) {
 }
 
 @Composable
-fun CustomSnackbarHost(snackbarHostState: SnackbarHostState) {
+fun CustomSnackbarHost(snackbarHostState: SnackbarHostState, modifier: Modifier) {
     SnackbarHost(
         hostState = snackbarHostState,
         snackbar = { snackbarData ->
@@ -124,7 +124,7 @@ fun CustomSnackbarHost(snackbarHostState: SnackbarHostState) {
                 }
             )
         },
-        modifier = Modifier.padding(bottom = 140.dp)
+        modifier = modifier
     )
 }
 
@@ -160,7 +160,7 @@ fun LoginForm(
             label = "E-mail",
             imeAction = ImeAction.Next,
             keyboardActions = KeyboardActions(onNext = { passwordFocusRequester.requestFocus() }),
-            textFieldColors = textFieldColors
+            textFieldColors = textFieldColors,
         )
         CustomPasswordField(
             value = password,
@@ -211,7 +211,8 @@ fun CustomTextField(
     imeAction: ImeAction,
     keyboardActions: KeyboardActions,
     keyboardType: KeyboardType = KeyboardType.Text,
-    textFieldColors: TextFieldColors
+    textFieldColors: TextFieldColors,
+    focusRequester: FocusRequester = FocusRequester()
 ) {
     TextField(
         value = value,
@@ -220,6 +221,7 @@ fun CustomTextField(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp)
+            .focusRequester(focusRequester)
             .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
