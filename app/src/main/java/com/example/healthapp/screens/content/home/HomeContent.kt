@@ -86,6 +86,8 @@ fun UserTable(users: List<User>) {
             TableCell(text = "Weight (kg)")
             TableCell(text = "Gender")
             TableCell(text = "Uid")
+            TableCell(text = "Activity Level")
+            TableCell(text = "BMI")
         }
         users.forEach { user ->
             Row(
@@ -99,6 +101,8 @@ fun UserTable(users: List<User>) {
                 TableCell(text = user.weight.toString())
                 TableCell(text = user.gender)
                 TableCell(text = user.uid)
+                TableCell(text = user.activityLevel.toString())
+                TableCell(text = user.bmi.toString())
             }
         }
     }

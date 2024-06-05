@@ -35,6 +35,7 @@ import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.ui.theme.customTextFieldColors
+import com.example.healthapp.utils.calculateBMI
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -45,8 +46,8 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
     val keyboardController = LocalSoftwareKeyboardController.current
     var fullName by remember { mutableStateOf("") }
     var age by remember { mutableStateOf(0) }
-    var height by remember { mutableStateOf(0) }
-    var weight by remember { mutableStateOf(0) }
+    var height by remember { mutableStateOf(0.0) }
+    var weight by remember { mutableStateOf(0.0) }
     val textFieldColors = customTextFieldColors()
     val genders = listOf("Female", "Male")
     var selectedIndex by rememberSaveable { mutableStateOf(0) }
@@ -110,8 +111,8 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
 
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomTextField(
-                    value = if (height == 0) "" else height.toString(),
-                    onValueChange = { height = try { it.toInt() } catch (e: NumberFormatException) { 0 } },
+                    value = if (height == 0.0) "" else height.toString(),
+                    onValueChange = { height = try { it.toDouble() } catch (e: NumberFormatException) { 0.0 } },
                     label = "Height (cm)",
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(onDone = { weightFocusRequester.requestFocus() }),
@@ -122,8 +123,8 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
 
                 Spacer(modifier = Modifier.height(12.dp))
                 CustomTextField(
-                    value = if (weight == 0) "" else weight.toString(),
-                    onValueChange = { weight = try { it.toInt() } catch (e: NumberFormatException) { 0 } },
+                    value = if (weight == 0.0) "" else weight.toString(),
+                    onValueChange = { weight = try { it.toDouble() } catch (e: NumberFormatException) { 0.0 } },
                     label = "Weight (kg)",
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
@@ -142,7 +143,7 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
                 Text(
                     text = "* If you do not know the exact values or do not want to disclose them, you can enter an approx. value.",
                     fontSize = 12.sp,
-                    color = MaterialTheme.colors.primaryVariant,
+                    color = colors.primaryVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
@@ -159,7 +160,9 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
                                 age = age,
                                 height = height,
                                 weight = weight,
-                                gender = genders[selectedIndex]
+                                gender = genders[selectedIndex],
+                                bmi = calculateBMI(weight = weight, height = height),
+                                activityLevel = 0
                             )
                             userViewModel.deleteAllUsers()
                             // TODO: delete all the other databases content
@@ -291,7 +294,7 @@ fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) 
     }
 }
 
-fun getValidationMessage(fullName: String, age: Int, height: Int, weight: Int): String? {
+fun getValidationMessage(fullName: String, age: Int, height: Double, weight: Double): String? {
     val fullNamePattern = Regex("^[A-Z][a-z]*(\\s[A-Z][a-z]*)+$")
 
     if (fullName.isBlank() || !fullName.matches(fullNamePattern)) {

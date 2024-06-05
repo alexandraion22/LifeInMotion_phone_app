@@ -8,7 +8,9 @@ data class User(
     val uid: String,
     val fullName: String,
     val age: Int,
-    val height: Int,
-    val weight: Int,
-    val gender: String
+    val height: Double,
+    val weight: Double,
+    val gender: String,
+    val activityLevel: Int,
+    val bmi: Double
 )
