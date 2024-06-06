@@ -1,6 +1,9 @@
 package com.example.healthapp.graphs
 
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,10 +20,21 @@ fun RootNavigationGraph(
     startDestination: String,
     userViewModel: UserViewModel
 ) {
+    val validStartDestinations = setOf(
+        Graph.AUTHENTICATION,
+        Graph.HOME,
+        Graph.WELCOME
+    )
+
+    if (startDestination !in validStartDestinations) {
+        Log.e("NavigationError", "Invalid start destination: $startDestination")
+        return
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination
-        ) {
+    ) {
         // Authentication graph
         navigation(route = Graph.AUTHENTICATION, startDestination = "LOGIN") {
             composable(route = "LOGIN") {
@@ -40,6 +54,7 @@ fun RootNavigationGraph(
         }
     }
 }
+
 
 object Graph {
     const val AUTHENTICATION = "auth_graph"
