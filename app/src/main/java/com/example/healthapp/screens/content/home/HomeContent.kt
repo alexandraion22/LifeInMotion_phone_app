@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 fun HomeContent(navController: NavHostController, userViewModel: UserViewModel) {
     val scope = rememberCoroutineScope()
     var fullName by remember { mutableStateOf("") }
-    val users by userViewModel.users.collectAsState()
 
     LaunchedEffect(Unit) {
         scope.launch {
@@ -45,74 +44,6 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel) 
             }) {
                 Text(text = "Go to Steps screen")
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
-                scope.launch {
-                    userViewModel.deleteAllUsers()
-                }
-            }) {
-                Text(text = "Delete All Users")
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "User Table", fontSize = 24.sp, modifier = Modifier.padding(bottom = 16.dp))
-            if (users.isNotEmpty()) {
-                UserTable(users = users)
-            } else {
-                Text("No users found.")
-            }
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.N)
-@Composable
-fun UserTable(users: List<User>) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .padding(8.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Row(
-            modifier = Modifier
-                .background(Color.Gray)
-                .padding(8.dp)
-                .fillMaxWidth()
-        ) {
-            TableCell(text = "Full Name")
-            TableCell(text = "Age")
-            TableCell(text = "Height (cm)")
-            TableCell(text = "Weight (kg)")
-            TableCell(text = "Gender")
-            TableCell(text = "Uid")
-            TableCell(text = "Activity Level")
-            TableCell(text = "BMI")
-        }
-        users.forEach { user ->
-            Row(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-            ) {
-                TableCell(text = user.fullName)
-                TableCell(text = user.age.toString())
-                TableCell(text = user.height.toString())
-                TableCell(text = user.weight.toString())
-                TableCell(text = user.gender)
-                TableCell(text = user.uid)
-                TableCell(text = user.activityLevel.toString())
-                TableCell(text = user.bmi.toString())
-            }
-        }
-    }
-}
-
-@Composable
-fun TableCell(text: String) {
-    Text(
-        text = text,
-        modifier = Modifier
-            .padding(4.dp)
-    )
 }
