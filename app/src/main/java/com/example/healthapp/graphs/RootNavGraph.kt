@@ -1,9 +1,8 @@
 package com.example.healthapp.graphs
 
-import android.util.Log
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,32 +13,24 @@ import com.example.healthapp.screens.mainscreens.AuthScreen
 import com.example.healthapp.screens.mainscreens.HomeScreen
 import com.example.healthapp.screens.mainscreens.WelcomeScreen
 
+@RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun RootNavigationGraph(
     navController: NavHostController,
-    startDestination: String,
+    startRoute: String,
+    startDestinationPage: String,
     userViewModel: UserViewModel
 ) {
-    val validStartDestinations = setOf(
-        Graph.AUTHENTICATION,
-        Graph.HOME,
-        Graph.WELCOME
-    )
-
-    if (startDestination !in validStartDestinations) {
-        Log.e("NavigationError", "Invalid start destination: $startDestination")
-        return
-    }
-
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startRoute
     ) {
         // Authentication graph
-        navigation(route = Graph.AUTHENTICATION, startDestination = "LOGIN") {
-            composable(route = "LOGIN") {
-                AuthScreen(userViewModel = userViewModel)
+        navigation(route = Graph.AUTHENTICATION, startDestination = startDestinationPage) {
+            composable(route = startDestinationPage ) {
+                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage)
             }
+
         }
         // Home graph
         navigation(route = Graph.HOME, startDestination = BottomBarScreen.Home.route) {

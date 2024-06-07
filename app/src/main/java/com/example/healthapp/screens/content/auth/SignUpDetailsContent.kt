@@ -33,6 +33,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
 import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
+import com.example.healthapp.graphs.Graph
 import com.example.healthapp.screens.content.home.getValidationMessage
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.example.healthapp.utils.calculateBMI
@@ -168,8 +169,9 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
                             )
                             userViewModel.deleteAllUsers()
                             userViewModel.insert(userData)
-                            Log.d("SignUpDetailsContent", "User data saved: $userData")
-                            navController.navigate("PROFILE")
+                            navController.navigate(Graph.HOME) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
                         } else {
                             coroutineScope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar(

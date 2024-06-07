@@ -1,5 +1,7 @@
 package com.example.healthapp.graphs
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -11,16 +13,18 @@ import com.example.healthapp.screens.content.auth.SignUpDetailsContent
 import com.example.healthapp.screens.mainscreens.HomeScreen
 
 
+@RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel) {
+fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String) {
     NavHost(
         navController = navController,
         route = Graph.AUTHENTICATION,
-        startDestination = "LOGIN"
+        startDestination = startDestination
     ) {
         composable(route = "LOGIN") {
             LoginContent(
-                navController = navController
+                navController = navController,
+                userViewModel = userViewModel
             )
         }
         composable(route = "SIGNUP") {

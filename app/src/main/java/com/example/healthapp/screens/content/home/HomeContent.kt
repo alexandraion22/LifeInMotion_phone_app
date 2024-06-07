@@ -29,7 +29,6 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel) 
         scope.launch {
             val user = userViewModel.getUser()
             fullName = user?.fullName ?: "User"
-            userViewModel.loadAllUsers()  // Load all users when the HomeContent is first displayed
         }
     }
 

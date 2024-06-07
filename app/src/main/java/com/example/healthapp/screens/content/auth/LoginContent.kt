@@ -28,18 +28,23 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.healthapp.R
+import com.example.healthapp.database.users.User
+import com.example.healthapp.database.users.UserViewModel
+import com.example.healthapp.database.users.UserViewModelFactory
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.ui.theme.CoolGray
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginContent(navController: NavHostController) {
+fun LoginContent(navController: NavHostController, userViewModel: UserViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -50,6 +55,14 @@ fun LoginContent(navController: NavHostController) {
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
+    val scope = rememberCoroutineScope()
+    var user by remember { mutableStateOf<User?>(null) }
+    LaunchedEffect(Unit) {
+        scope.launch(Dispatchers.IO) {
+            user = userViewModel.getUser()
+        }
+    }
+
     val customTextSelectionColors = TextSelectionColors(
         handleColor = Color.Gray,
         backgroundColor = Color.LightGray.copy(alpha = 0.4f)
@@ -59,9 +72,14 @@ fun LoginContent(navController: NavHostController) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    navController.navigate(Graph.HOME) {
-                        popUpTo(navController.graph.id) { inclusive = true }
-                    }
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                        if(currentUser?.uid == (user?.uid ?: "")) {
+                            navController.navigate(Graph.HOME) {
+                                popUpTo(navController.graph.id) { inclusive = true }
+                            }
+                        }
+                        else
+                            navController.navigate("SIGNUP/DETAILS")
                 } else {
                     errorMessage = task.exception?.message
                     coroutineScope.launch {

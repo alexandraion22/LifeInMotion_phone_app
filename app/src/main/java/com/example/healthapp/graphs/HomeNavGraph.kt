@@ -52,7 +52,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel)
             SettingsContent(navController = navController)
         }
         composable(route = Graph.AUTHENTICATION) {
-            AuthScreen(userViewModel = userViewModel)
+            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN")
         }
     }
 }
