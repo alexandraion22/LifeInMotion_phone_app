@@ -11,6 +11,7 @@ import com.example.healthapp.BottomBarScreen
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.content.home.HomeContent
 import com.example.healthapp.screens.content.home.ProfileContent
+import com.example.healthapp.screens.content.home.ProfileSettingsContent
 import com.example.healthapp.screens.content.home.ScreenContent
 import com.example.healthapp.screens.content.home.StepsContent
 import com.example.healthapp.screens.mainscreens.AuthScreen
@@ -43,6 +44,9 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel)
         }
         composable(route = BottomBarScreen.Steps.route) {
             StepsContent()
+        }
+        composable(route = BottomBarScreen.ProfileSettings.route) {
+            ProfileSettingsContent(navController = navController, userViewModel = userViewModel)
         }
         composable(route = "SETTINGS") {
             SettingsContent(navController = navController)

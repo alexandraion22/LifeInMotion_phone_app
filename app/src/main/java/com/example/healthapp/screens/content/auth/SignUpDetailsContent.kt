@@ -33,7 +33,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
 import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
-import com.example.healthapp.graphs.Graph
+import com.example.healthapp.screens.content.home.getValidationMessage
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.example.healthapp.utils.calculateBMI
 import com.google.firebase.auth.FirebaseAuth
@@ -45,9 +45,9 @@ import kotlinx.coroutines.launch
 fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserViewModel) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var fullName by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf(0) }
-    var height by remember { mutableStateOf(0.0) }
-    var weight by remember { mutableStateOf(0.0) }
+    var ageString  by remember { mutableStateOf("") }
+    var weightString  by remember { mutableStateOf("") }
+    var heightString by remember { mutableStateOf("") }
     val textFieldColors = customTextFieldColors()
     val genders = listOf("Female", "Male")
     var selectedIndex by rememberSaveable { mutableStateOf(0) }
@@ -77,7 +77,6 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
                 Text(
                     text = "Personalise your experience",
                     fontSize = 32.sp,
-                    color = Color.Black,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
@@ -99,8 +98,8 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
 
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomTextField(
-                    value = if (age == 0) "" else age.toString(),
-                    onValueChange = { age = try { it.toInt() } catch (e: NumberFormatException) { 0 } },
+                    value = ageString,
+                    onValueChange = { ageString = it },
                     label = "Age",
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(onDone = { heightFocusRequester.requestFocus() }),
@@ -111,8 +110,8 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
 
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomTextField(
-                    value = if (height == 0.0) "" else height.toString(),
-                    onValueChange = { height = try { it.toDouble() } catch (e: NumberFormatException) { 0.0 } },
+                    value = heightString,
+                    onValueChange = { heightString = it },
                     label = "Height (cm)",
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(onDone = { weightFocusRequester.requestFocus() }),
@@ -123,8 +122,8 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
 
                 Spacer(modifier = Modifier.height(12.dp))
                 CustomTextField(
-                    value = if (weight == 0.0) "" else weight.toString(),
-                    onValueChange = { weight = try { it.toDouble() } catch (e: NumberFormatException) { 0.0 } },
+                    value = weightString,
+                    onValueChange = { weightString = it},
                     label = "Weight (kg)",
                     imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
@@ -137,7 +136,9 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
                 DropdownList(
                     itemList = genders,
                     selectedIndex = selectedIndex,
-                    onItemClick = { selectedIndex = it })
+                    onItemClick = { selectedIndex = it },
+                    width = 0.915f
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -151,29 +152,29 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
                 Button(
                     onClick = {
                         keyboardController?.hide()
-                        val validationMessage = getValidationMessage(fullName, age, height, weight)
+                        val validationMessage =
+                            getValidationMessage(fullName, ageString, heightString, weightString)
                         val uid = firebaseAuth.currentUser?.uid
                         if (validationMessage == null) {
-                            val user = User(
+                            val userData = User(
                                 uid = uid!!,
                                 fullName = fullName,
-                                age = age,
-                                height = height,
-                                weight = weight,
+                                age = ageString.toInt(),
+                                height = heightString.toDouble(),
+                                weight = weightString.toDouble(),
                                 gender = genders[selectedIndex],
-                                bmi = calculateBMI(weight = weight, height = height),
+                                bmi = calculateBMI(weight = weightString.toDouble(), height = heightString.toDouble()),
                                 activityLevel = 0
                             )
                             userViewModel.deleteAllUsers()
-                            // TODO: delete all the other databases content
-                            userViewModel.insert(user)
-                            Log.d("SignUpDetailsContent", "User data saved: $user")
-                            navController.navigate(Graph.HOME) {
-                                popUpTo(navController.graph.id) { inclusive = true }
-                            }
+                            userViewModel.insert(userData)
+                            Log.d("SignUpDetailsContent", "User data saved: $userData")
+                            navController.navigate("PROFILE")
                         } else {
                             coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar(validationMessage)
+                                scaffoldState.snackbarHostState.showSnackbar(
+                                    validationMessage
+                                )
                             }
                         }
                     },
@@ -194,7 +195,7 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
 }
 
 @Composable
-fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) -> Unit) {
+fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) -> Unit, width: Float) {
     var showDropdown by rememberSaveable { mutableStateOf(false) }
     var handleDismissRequest by rememberSaveable { mutableStateOf(false) }
 
@@ -260,7 +261,7 @@ fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) 
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.915f)
+                        .fillMaxWidth(width)
                         .clip(RoundedCornerShape(16.dp))
                         .heightIn(max = 180.dp)
                         .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
@@ -292,23 +293,4 @@ fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) 
             }
         }
     }
-}
-
-fun getValidationMessage(fullName: String, age: Int, height: Double, weight: Double): String? {
-    val fullNamePattern = Regex("^[A-Z][a-z]*(\\s[A-Z][a-z]*)+$")
-
-    if (fullName.isBlank() || !fullName.matches(fullNamePattern)) {
-        return "The name must start with capital letters and contain the first and last names ."
-    }
-
-    if (age !in 1..100) {
-        return "The age must have a valid value."
-    }
-    if (height <= 0) {
-        return "The height must have a valid value."
-    }
-    if (weight <= 0) {
-        return "The weight must have a valid value."
-    }
-    return null
 }

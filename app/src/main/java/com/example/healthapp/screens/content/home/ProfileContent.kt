@@ -71,7 +71,7 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
                 Modifier
                     .fillMaxWidth(0.9f)
                     .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(24.dp))
-                    .padding(top = 28.dp, start = 28.dp, end = 18.dp, bottom = 18.dp),
+                    .padding(top = 24.dp, start = 24.dp, end = 20.dp, bottom = 24.dp),
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     user?.let {
@@ -130,7 +130,7 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
                             horizontalArrangement = Arrangement.End // Align to the right
                         ) {
                             Button(
-                                onClick = {},
+                                onClick = { navController.navigate("PROFILE/SETTINGS") },
                                 modifier = Modifier
                                     .width(120.dp) // Adjust width as needed
                                     .height(40.dp),
@@ -152,7 +152,7 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(24.dp))
-                    .padding(top = 24.dp, bottom = 24.dp, start = 28.dp, end = 18.dp)
+                    .padding(top = 24.dp, bottom = 24.dp, start = 24.dp, end = 24.dp)
             ) {
                 Column {
                     Row(
