@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.dp
 import com.example.healthapp.database.bpm.Bpm
 import com.example.healthapp.database.bpm.BpmRepository
@@ -74,16 +75,31 @@ fun BarChart(bpmList: List<Bpm>) {
         modifier = Modifier.fillMaxWidth().padding(8.dp)
     ) {
         val barWidth = 50F
+        val maxBpm = bpmList.maxByOrNull { it.bpm }?.bpm ?: 0
 
-        // Draw bars
+        // Draw bars and legend
         bpmList.forEachIndexed { index, bpm ->
-            val barHeight = bpm.bpm.toFloat() * 2
+            val barHeight = bpm.bpm.toFloat() * 5
             drawRoundRect(
                 color = Color.Blue,
-                topLeft = Offset(75F * index, 200 - barHeight),
+                topLeft = Offset(75F * index, 500 - barHeight),
                 size = Size(barWidth, barHeight),
                 cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
             )
+        }
+
+        for (i in 0 until maxBpm /10 + 2) {
+            drawIntoCanvas {
+                it.nativeCanvas.drawText(
+                    (i *10).toString(),
+                    75F * 12 + barWidth + 8.dp.toPx(),
+                    (500 - i * 50).toFloat(), // Adjust position to center the label
+                    Paint().asFrameworkPaint().apply {
+                        color = Color.Black.toArgb()
+                        textSize = 20f // Adjust text size as needed
+                    }
+                )
+            }
         }
     }
 }
