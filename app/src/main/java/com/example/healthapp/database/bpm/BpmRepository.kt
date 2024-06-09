@@ -11,7 +11,7 @@ class BpmRepository @Inject constructor(private val bpmDao: BpmDao) {
         bpmDao.deleteAll()
     }
 
-    suspend fun getAllPastHour() : List<Bpm>{
-        return bpmDao.getAllPastHour()
+    suspend fun getAllPastHour(startOfHourEpoch: Long,startOfNextHourEpoch: Long) : List<Bpm>{
+        return bpmDao.getAllPastHour(startOfHourEpoch,startOfNextHourEpoch)
     }
 }

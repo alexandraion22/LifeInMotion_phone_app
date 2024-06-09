@@ -6,7 +6,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(entities = [Bpm::class], version = 1, exportSchema = false)
-@TypeConverters(LocalDateTimeConverter::class)
 abstract class BpmDatabase : RoomDatabase() {
     abstract fun bpmDao(): BpmDao
 
@@ -19,7 +18,7 @@ abstract class BpmDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     BpmDatabase::class.java,
-                    "bpm_database"
+                    "bpm_frequent_database"
                 ).build()
                 INSTANCE = instance
                 instance

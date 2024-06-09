@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -44,13 +45,12 @@ class WatchListenerService: WearableListenerService() {
 
         val bpmData = Bpm(
             bpm = bpm,
-            timestamp = timestamp
+            timestamp = timestamp.toEpochMillis()
         )
         Log.d(TAG, "Finished processing")
         CoroutineScope(Dispatchers.IO).launch {
             bpmRepository.insert(bpmData)
             Log.d(TAG, "Added data")
-            Log.d(TAG, bpmRepository.getAllPastHour().toString())
         }
 
     }
@@ -60,4 +60,9 @@ class WatchListenerService: WearableListenerService() {
         private const val TAG = "WatchListenerService"
         private const val BPM_PATH = "/bpm"
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun LocalDateTime.toEpochMillis(): Long {
+    return this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 }

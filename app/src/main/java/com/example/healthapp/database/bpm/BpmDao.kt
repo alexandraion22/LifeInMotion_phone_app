@@ -10,8 +10,8 @@ interface BpmDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(bpm: Bpm)
 
-    @Query("SELECT * FROM bpm_table WHERE timestamp >= datetime('now', '-1 hour')")
-    suspend fun getAllPastHour(): List<Bpm>
+    @Query("SELECT * FROM bpm_table WHERE timestamp >= :startOfHour AND timestamp < :startOfNextHour")
+    suspend fun getAllPastHour(startOfHour: Long, startOfNextHour: Long): List<Bpm>
 
     @Query("DELETE FROM bpm_table")
     suspend fun deleteAll()

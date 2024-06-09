@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 @Entity(tableName = "bpm_table")
 data class Bpm(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val timestamp: LocalDateTime,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val timestamp: Long,
     val bpm: Int
 )
