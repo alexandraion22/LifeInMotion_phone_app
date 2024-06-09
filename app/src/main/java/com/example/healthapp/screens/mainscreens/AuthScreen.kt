@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.healthapp.database.bpm.BpmRepository
 import com.example.healthapp.database.bpm.BpmViewModel
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.AuthNavGraph
@@ -15,7 +16,7 @@ fun AuthScreen(
     navController: NavHostController = rememberNavController(),
     userViewModel: UserViewModel,
     startDestination: String,
-    bpmViewModel: BpmViewModel
+    bpmRepository: BpmRepository
 ) {
-    AuthNavGraph(navController = navController, userViewModel = userViewModel, startDestination = startDestination, bpmViewModel = bpmViewModel)
+    AuthNavGraph(navController = navController, userViewModel = userViewModel, startDestination = startDestination, bpmRepository = bpmRepository)
 }

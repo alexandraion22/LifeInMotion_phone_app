@@ -1,5 +1,6 @@
 package com.example.healthapp
 
+import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.os.Build
 import android.os.Bundle
@@ -13,18 +14,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.healthapp.database.bpm.BpmRepository
 import com.example.healthapp.database.bpm.BpmViewModel
 import com.example.healthapp.database.bpm.BpmViewModelFactory
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.database.users.UserViewModelFactory
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.graphs.RootNavigationGraph
+import com.example.healthapp.service.WatchListenerService
 import com.example.healthapp.ui.theme.HealthAppTheme
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var bpmRepository: BpmRepository
+
+    @SuppressLint("CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,9 +47,6 @@ class MainActivity : ComponentActivity() {
                 val scope = rememberCoroutineScope()
                 val userViewModel: UserViewModel = viewModel(
                     factory = UserViewModelFactory(application)
-                )
-                val bpmViewModel: BpmViewModel = viewModel(
-                    factory = BpmViewModelFactory(application)
                 )
                 LaunchedEffect(Unit) {
                     scope.launch(Dispatchers.IO) {
@@ -58,7 +67,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmViewModel = bpmViewModel)
+                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmRepository = bpmRepository)
             }
         }
     }
