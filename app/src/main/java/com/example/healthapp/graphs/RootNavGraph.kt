@@ -7,7 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.healthapp.BottomBarScreen
+import com.example.healthapp.database.bpm.BpmViewModel
+import com.example.healthapp.screens.mainscreens.BottomBarScreen
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.mainscreens.AuthScreen
 import com.example.healthapp.screens.mainscreens.HomeScreen
@@ -19,7 +20,8 @@ fun RootNavigationGraph(
     navController: NavHostController,
     startRoute: String,
     startDestinationPage: String,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    bpmViewModel: BpmViewModel
 ) {
     NavHost(
         navController = navController,
@@ -28,14 +30,14 @@ fun RootNavigationGraph(
         // Authentication graph
         navigation(route = Graph.AUTHENTICATION, startDestination = startDestinationPage) {
             composable(route = startDestinationPage ) {
-                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage)
+                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmViewModel = bpmViewModel)
             }
 
         }
         // Home graph
         navigation(route = Graph.HOME, startDestination = BottomBarScreen.Home.route) {
             composable(route = BottomBarScreen.Home.route) {
-                HomeScreen(userViewModel = userViewModel)
+                HomeScreen(userViewModel = userViewModel, bpmViewModel = bpmViewModel)
             }
         }
         navigation(route = Graph.WELCOME, startDestination = "WELCOME") {

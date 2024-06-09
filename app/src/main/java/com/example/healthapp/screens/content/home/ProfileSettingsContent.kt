@@ -1,7 +1,6 @@
 package com.example.healthapp.screens.content.home
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -178,9 +177,7 @@ fun ProfileSettingsContent(navController: NavHostController, userViewModel: User
                                                 bmi = calculateBMI(weight = weightString.toDouble(), height = heightString.toDouble()),
                                                 activityLevel = 0
                                             )
-                                            userViewModel.deleteAllUsers()
                                             userViewModel.insert(userData)
-                                            Log.d("SignUpDetailsContent", "User data saved: $userData")
                                             navController.navigate("PROFILE")
                                         } else {
                                             coroutineScope.launch {

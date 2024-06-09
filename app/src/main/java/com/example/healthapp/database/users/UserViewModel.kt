@@ -19,7 +19,6 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     fun insert(user: User) = viewModelScope.launch {
         repository.insert(user)
-        loadAllUsers()
     }
 
     suspend fun getUser(): User? {
@@ -28,9 +27,5 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteAllUsers() = viewModelScope.launch {
         repository.deleteAllUsers()
-    }
-
-    fun loadAllUsers() = viewModelScope.launch {
-        _users.value = repository.getAllUsers()
     }
 }

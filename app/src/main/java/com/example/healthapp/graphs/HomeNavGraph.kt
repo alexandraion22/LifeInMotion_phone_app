@@ -7,7 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.healthapp.BottomBarScreen
+import com.example.healthapp.database.bpm.BpmViewModel
+import com.example.healthapp.screens.mainscreens.BottomBarScreen
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.content.home.HomeContent
 import com.example.healthapp.screens.content.home.ProfileContent
@@ -18,7 +19,7 @@ import com.example.healthapp.screens.mainscreens.AuthScreen
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel) {
+fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel, bpmViewModel: BpmViewModel) {
     NavHost(
         navController = navController,
         route = Graph.HOME,
@@ -43,7 +44,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel)
             ProfileContent(navController = navController, userViewModel = userViewModel)
         }
         composable(route = BottomBarScreen.Steps.route) {
-            StepsContent()
+            StepsContent(bpmViewModel = bpmViewModel)
         }
         composable(route = BottomBarScreen.ProfileSettings.route) {
             ProfileSettingsContent(navController = navController, userViewModel = userViewModel)
@@ -52,7 +53,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel)
             SettingsContent(navController = navController)
         }
         composable(route = Graph.AUTHENTICATION) {
-            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN")
+            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN", bpmViewModel = bpmViewModel)
         }
     }
 }

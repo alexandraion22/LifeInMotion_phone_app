@@ -8,13 +8,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.healthapp.database.bpm.BpmViewModel
+import com.example.healthapp.database.bpm.BpmViewModelFactory
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.database.users.UserViewModelFactory
 import com.example.healthapp.graphs.Graph
@@ -36,17 +36,14 @@ class MainActivity : ComponentActivity() {
                 val userViewModel: UserViewModel = viewModel(
                     factory = UserViewModelFactory(application)
                 )
+                val bpmViewModel: BpmViewModel = viewModel(
+                    factory = BpmViewModelFactory(application)
+                )
                 LaunchedEffect(Unit) {
                     scope.launch(Dispatchers.IO) {
                         val currentUser = FirebaseAuth.getInstance().currentUser
                         val user = userViewModel.getUser()
                         val uid = user?.uid
-                        if (uid != null) {
-                            Log.d(TAG,uid)
-                        }
-                        if (user != null) {
-                            Log.d(TAG,user.uid)
-                        }
                         if(currentUser==null)
                             startRoute.value = Graph.AUTHENTICATION
                         else
@@ -61,7 +58,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value)
+                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmViewModel = bpmViewModel)
             }
         }
     }

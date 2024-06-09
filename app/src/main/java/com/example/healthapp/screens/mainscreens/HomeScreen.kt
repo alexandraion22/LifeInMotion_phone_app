@@ -13,7 +13,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.healthapp.BottomBarScreen
 import com.example.healthapp.graphs.HomeNavGraph
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +25,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
 import com.example.healthapp.R
+import com.example.healthapp.database.bpm.BpmViewModel
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.screens.crop
@@ -36,13 +36,14 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun HomeScreen(
     navController: NavHostController = rememberNavController(),
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    bpmViewModel: BpmViewModel
 ) {
     Scaffold(
         topBar = { TopBar(navController = navController) },
         bottomBar = { BottomBar(navController = navController) }
     ) {
-        HomeNavGraph(navController = navController, userViewModel = userViewModel)
+        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmViewModel = bpmViewModel)
     }
 }
 

@@ -28,12 +28,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.healthapp.R
 import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
-import com.example.healthapp.database.users.UserViewModelFactory
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.ui.theme.CoolGray
 import com.example.healthapp.ui.theme.customTextFieldColors

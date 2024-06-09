@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.healthapp.database.bpm.BpmViewModel
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.content.auth.LoginContent
 import com.example.healthapp.screens.content.auth.SignUpContent
@@ -15,7 +16,7 @@ import com.example.healthapp.screens.mainscreens.HomeScreen
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String) {
+fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String, bpmViewModel: BpmViewModel) {
     NavHost(
         navController = navController,
         route = Graph.AUTHENTICATION,
@@ -39,7 +40,7 @@ fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             )
         }
         composable(route = Graph.HOME) {
-            HomeScreen(userViewModel = userViewModel)
+            HomeScreen(userViewModel = userViewModel, bpmViewModel = bpmViewModel)
         }
     }
 }

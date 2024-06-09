@@ -1,4 +1,6 @@
-package com.example.healthapp
+package com.example.healthapp.screens.mainscreens
+
+import com.example.healthapp.R
 
 sealed class BottomBarScreen(
     val route: String,
@@ -16,7 +18,7 @@ sealed class BottomBarScreen(
 
     object Workout: BottomBarScreen(
         route = "WORKOUT",
-        icon =  R.drawable.ic_navbar_workout
+        icon = R.drawable.ic_navbar_workout
     )
 
     object Profile: BottomBarScreen(
