@@ -1,14 +1,16 @@
 package com.example.healthapp.graphs
 
 import SettingsContent
-import StepsContent
+import BpmContent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.healthapp.database.bpm.BpmRepository
+import com.example.healthapp.database.bpm.daily.BpmDailyRepository
+import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
+import com.example.healthapp.database.bpm.last.BpmRepository
 import com.example.healthapp.screens.mainscreens.BottomBarScreen
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.content.home.HomeContent
@@ -17,9 +19,9 @@ import com.example.healthapp.screens.content.home.ProfileSettingsContent
 import com.example.healthapp.screens.content.home.ScreenContent
 import com.example.healthapp.screens.mainscreens.AuthScreen
 
-@RequiresApi(Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel, bpmRepository: BpmRepository) {
+fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository) {
     NavHost(
         navController = navController,
         route = Graph.HOME,
@@ -45,7 +47,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             ProfileContent(navController = navController, userViewModel = userViewModel)
         }
         composable(route = BottomBarScreen.Steps.route) {
-            StepsContent(bpmRepository = bpmRepository)
+            BpmContent(bpmHourlyRepository = bpmHourlyRepository, bpmDailyRepository = bpmDailyRepository)
         }
         composable(route = BottomBarScreen.ProfileSettings.route) {
             ProfileSettingsContent(navController = navController, userViewModel = userViewModel)
@@ -54,7 +56,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             SettingsContent(navController = navController)
         }
         composable(route = Graph.AUTHENTICATION) {
-            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN", bpmRepository = bpmRepository)
+            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN", bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
         }
     }
 }

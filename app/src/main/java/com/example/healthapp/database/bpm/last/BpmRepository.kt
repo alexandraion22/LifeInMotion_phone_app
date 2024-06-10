@@ -1,4 +1,4 @@
-package com.example.healthapp.database.bpm
+package com.example.healthapp.database.bpm.last
 
 import javax.inject.Inject
 

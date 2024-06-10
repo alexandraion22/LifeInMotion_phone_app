@@ -3,14 +3,12 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,36 +20,41 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.dp
-import com.example.healthapp.database.bpm.Bpm
-import com.example.healthapp.database.bpm.BpmRepository
+import com.example.healthapp.database.bpm.daily.BpmDailyRepository
+import com.example.healthapp.database.bpm.hourly.BpmHourly
+import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
+import com.example.healthapp.database.bpm.last.Bpm
+import com.example.healthapp.database.bpm.last.BpmRepository
 import com.example.healthapp.service.toEpochMillis
+import com.example.healthapp.ui.theme.PsychedelicPurple
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun StepsContent(bpmRepository: BpmRepository) {
-    var bpmList by remember { mutableStateOf<List<Bpm>>(emptyList()) }
+fun BpmContent(bpmHourlyRepository: BpmHourlyRepository, bpmDailyRepository: BpmDailyRepository) {
+    var bpmList by remember { mutableStateOf<List<BpmHourly>>(emptyList()) }
 
     val currentTime = LocalDateTime.now()
-    val startOfHourEpoch = currentTime.withMinute(0).withSecond(0).toEpochMillis()
-    val startOfNextHourEpoch = currentTime.plusHours(1).withMinute(0).withSecond(0).toEpochMillis()
+    val startOfDay = currentTime.withHour(0).withMinute(0).withSecond(0).toEpochMillis()
+    val startOfNextDay = currentTime.plusDays(1).withHour(0).withMinute(0).withSecond(0).toEpochMillis()
+    val startOfWeek = currentTime.minusDays(7).withHour(0).withMinute(0).withSecond(0).toEpochMillis()
 
     LaunchedEffect(Unit) {
         val data = withContext(Dispatchers.IO) {
-            bpmRepository.getAllPastHour(startOfHourEpoch,startOfNextHourEpoch)
+            bpmHourlyRepository.getAllPastDay(startOfDay = startOfDay, startOfNextDay = startOfNextDay)
         }
         bpmList = data
+        val data2 = withContext(Dispatchers.IO) {
+            bpmDailyRepository.getAllPast7days(startOfWeek, startOfDay)
+        }
         Log.e("HERE", bpmList.toString())
+        Log.e("HERE2", data2.toString())
     }
 
     Box(
@@ -70,25 +73,26 @@ fun StepsContent(bpmRepository: BpmRepository) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BarChart(bpmList: List<Bpm>) {
+fun BarChart(bpmList: List<BpmHourly>) {
     Canvas(
         modifier = Modifier.fillMaxWidth().padding(8.dp)
     ) {
-        val barWidth = 50F
-        val maxBpm = bpmList.maxByOrNull { it.bpm }?.bpm ?: 0
+        val barWidth = 25F
+        val maxBpm = bpmList.maxByOrNull { it.maxBpm }?.maxBpm ?: 0
 
         // Draw bars and legend
         bpmList.forEachIndexed { index, bpm ->
-            val barHeight = bpm.bpm.toFloat() * 5
+            val barUp = bpm.maxBpm.toFloat() * 5
+            val barHeight = (bpm.maxBpm.toFloat() - bpm.minBpm.toFloat()) * 5
             drawRoundRect(
-                color = Color.Blue,
-                topLeft = Offset(75F * index, 500 - barHeight),
+                color = PsychedelicPurple,
+                topLeft = Offset(30F * index, 500 - barUp),
                 size = Size(barWidth, barHeight),
                 cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
             )
         }
 
-        for (i in 0 until maxBpm /10 + 2) {
+        for (i in 0 until maxBpm / 10 + 2) {
             drawIntoCanvas {
                 it.nativeCanvas.drawText(
                     (i *10).toString(),

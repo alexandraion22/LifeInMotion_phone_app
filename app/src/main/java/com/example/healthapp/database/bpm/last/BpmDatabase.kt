@@ -1,9 +1,8 @@
-package com.example.healthapp.database.bpm
+package com.example.healthapp.database.bpm.last
 
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 
 @Database(entities = [Bpm::class], version = 1, exportSchema = false)
 abstract class BpmDatabase : RoomDatabase() {

@@ -12,7 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.healthapp.database.bpm.BpmRepository
+import com.example.healthapp.database.bpm.daily.BpmDailyRepository
+import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
+import com.example.healthapp.database.bpm.last.BpmRepository
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.database.users.UserViewModelFactory
 import com.example.healthapp.graphs.Graph
@@ -28,7 +30,12 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject
-    lateinit var bpmRepository: BpmRepository
+    lateinit var bpmHourlyRepository: BpmHourlyRepository
+
+    @Inject
+    lateinit var bpmDailyRepository: BpmDailyRepository
+
+
 
     @SuppressLint("CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.N)
@@ -61,7 +68,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmRepository = bpmRepository)
+                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
             }
         }
     }

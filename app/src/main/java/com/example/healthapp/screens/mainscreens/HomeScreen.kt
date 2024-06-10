@@ -25,7 +25,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
 import com.example.healthapp.R
-import com.example.healthapp.database.bpm.BpmRepository
+import com.example.healthapp.database.bpm.daily.BpmDailyRepository
+import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
+import com.example.healthapp.database.bpm.last.BpmRepository
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.screens.crop
@@ -37,13 +39,14 @@ import com.google.firebase.auth.FirebaseAuth
 fun HomeScreen(
     navController: NavHostController = rememberNavController(),
     userViewModel: UserViewModel,
-    bpmRepository: BpmRepository
+    bpmDailyRepository: BpmDailyRepository,
+    bpmHourlyRepository: BpmHourlyRepository
 ) {
     Scaffold(
         topBar = { TopBar(navController = navController) },
         bottomBar = { BottomBar(navController = navController) }
     ) {
-        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmRepository = bpmRepository)
+        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
     }
 }
 

@@ -7,7 +7,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.healthapp.database.bpm.BpmRepository
+import com.example.healthapp.database.bpm.daily.BpmDailyRepository
+import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
+import com.example.healthapp.database.bpm.last.BpmRepository
 import com.example.healthapp.screens.mainscreens.BottomBarScreen
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.mainscreens.AuthScreen
@@ -21,7 +23,8 @@ fun RootNavigationGraph(
     startRoute: String,
     startDestinationPage: String,
     userViewModel: UserViewModel,
-    bpmRepository: BpmRepository
+    bpmDailyRepository: BpmDailyRepository,
+    bpmHourlyRepository: BpmHourlyRepository
 ) {
     NavHost(
         navController = navController,
@@ -30,14 +33,14 @@ fun RootNavigationGraph(
         // Authentication graph
         navigation(route = Graph.AUTHENTICATION, startDestination = startDestinationPage) {
             composable(route = startDestinationPage ) {
-                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmRepository = bpmRepository)
+                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
             }
 
         }
         // Home graph
         navigation(route = Graph.HOME, startDestination = BottomBarScreen.Home.route) {
             composable(route = BottomBarScreen.Home.route) {
-                HomeScreen(userViewModel = userViewModel, bpmRepository = bpmRepository)
+                HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
             }
         }
         navigation(route = Graph.WELCOME, startDestination = "WELCOME") {
