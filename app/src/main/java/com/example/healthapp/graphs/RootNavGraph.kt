@@ -10,6 +10,8 @@ import androidx.navigation.navigation
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.steps.daily.StepsDailyRepository
+import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.screens.mainscreens.BottomBarScreen
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.mainscreens.AuthScreen
@@ -24,7 +26,9 @@ fun RootNavigationGraph(
     startDestinationPage: String,
     userViewModel: UserViewModel,
     bpmDailyRepository: BpmDailyRepository,
-    bpmHourlyRepository: BpmHourlyRepository
+    bpmHourlyRepository: BpmHourlyRepository,
+    stepsDailyRepository: StepsDailyRepository,
+    stepsHourlyRepository: StepsHourlyRepository
 ) {
     NavHost(
         navController = navController,
@@ -33,14 +37,14 @@ fun RootNavigationGraph(
         // Authentication graph
         navigation(route = Graph.AUTHENTICATION, startDestination = startDestinationPage) {
             composable(route = startDestinationPage ) {
-                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
+                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
             }
 
         }
         // Home graph
         navigation(route = Graph.HOME, startDestination = BottomBarScreen.Home.route) {
             composable(route = BottomBarScreen.Home.route) {
-                HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
+                HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
             }
         }
         navigation(route = Graph.WELCOME, startDestination = "WELCOME") {

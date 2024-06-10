@@ -29,6 +29,8 @@ import com.example.healthapp.database.bpm.hourly.BpmHourly
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.Bpm
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.steps.daily.StepsDailyRepository
+import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.service.toEpochMillis
 import com.example.healthapp.ui.theme.PsychedelicPurple
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +39,7 @@ import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BpmContent(bpmHourlyRepository: BpmHourlyRepository, bpmDailyRepository: BpmDailyRepository) {
+fun BpmContent(bpmHourlyRepository: BpmHourlyRepository, bpmDailyRepository: BpmDailyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository) {
     var bpmList by remember { mutableStateOf<List<BpmHourly>>(emptyList()) }
 
     val currentTime = LocalDateTime.now()
@@ -47,14 +49,23 @@ fun BpmContent(bpmHourlyRepository: BpmHourlyRepository, bpmDailyRepository: Bpm
 
     LaunchedEffect(Unit) {
         val data = withContext(Dispatchers.IO) {
-            bpmHourlyRepository.getAllPastDay(startOfDay = startOfDay, startOfNextDay = startOfNextDay)
+            bpmHourlyRepository.getAllPastDay(startOfDay,startOfNextDay)
         }
-        bpmList = data
         val data2 = withContext(Dispatchers.IO) {
             bpmDailyRepository.getAllPast7days(startOfWeek, startOfDay)
         }
-        Log.e("HERE", bpmList.toString())
+        val data3 = withContext(Dispatchers.IO) {
+            stepsHourlyRepository.getAllPastDay(startOfDay,startOfNextDay)
+        }
+        val data4 = withContext(Dispatchers.IO) {
+            stepsDailyRepository.getAllPast7days(startOfWeek, startOfDay)
+        }
+
+        Log.e("HERE", data.toString())
         Log.e("HERE2", data2.toString())
+        Log.e("HERE3", data3.toString())
+        Log.e("HERE4", data4.toString())
+        bpmList = data
     }
 
     Box(

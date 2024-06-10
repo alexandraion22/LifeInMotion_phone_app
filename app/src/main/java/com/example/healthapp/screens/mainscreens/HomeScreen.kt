@@ -28,6 +28,8 @@ import com.example.healthapp.R
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.steps.daily.StepsDailyRepository
+import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.screens.crop
@@ -40,13 +42,15 @@ fun HomeScreen(
     navController: NavHostController = rememberNavController(),
     userViewModel: UserViewModel,
     bpmDailyRepository: BpmDailyRepository,
-    bpmHourlyRepository: BpmHourlyRepository
+    bpmHourlyRepository: BpmHourlyRepository,
+    stepsDailyRepository: StepsDailyRepository,
+    stepsHourlyRepository: StepsHourlyRepository
 ) {
     Scaffold(
         topBar = { TopBar(navController = navController) },
         bottomBar = { BottomBar(navController = navController) }
     ) {
-        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
+        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
     }
 }
 

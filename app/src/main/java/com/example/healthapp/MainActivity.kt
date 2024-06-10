@@ -15,6 +15,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.steps.daily.StepsDailyRepository
+import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.database.users.UserViewModelFactory
 import com.example.healthapp.graphs.Graph
@@ -35,7 +37,11 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var bpmDailyRepository: BpmDailyRepository
 
+    @Inject
+    lateinit var stepsHourlyRepository: StepsHourlyRepository
 
+    @Inject
+    lateinit var stepsDailyRepository: StepsDailyRepository
 
     @SuppressLint("CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.N)
@@ -68,7 +74,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
+                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
             }
         }
     }

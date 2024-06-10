@@ -13,6 +13,12 @@ import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmDao
 import com.example.healthapp.database.bpm.last.BpmDatabase
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.steps.daily.StepsDailyDao
+import com.example.healthapp.database.steps.daily.StepsDailyDatabase
+import com.example.healthapp.database.steps.daily.StepsDailyRepository
+import com.example.healthapp.database.steps.hourly.StepsHourlyDao
+import com.example.healthapp.database.steps.hourly.StepsHourlyDatabase
+import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,6 +51,52 @@ object AppModule {
             "health_app_database"
         ).build()
     }
+
+    @Provides
+    @Singleton
+    fun provideStepsHourlyDao(database: StepsHourlyDatabase): StepsHourlyDao {
+        return database.stepsHourlyDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStepsHourlyRepository(stepsHourlyDao: StepsHourlyDao): StepsHourlyRepository {
+        return StepsHourlyRepository(stepsHourlyDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideStepsHourlyDatabase(@ApplicationContext appContext: Context): StepsHourlyDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            StepsHourlyDatabase::class.java,
+            "steps_hourly_database"
+        ).build()
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideStepsDailyDao(database: StepsDailyDatabase): StepsDailyDao {
+        return database.stepsDailyDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStepsDailyRepository(stepsDailyDao: StepsDailyDao): StepsDailyRepository {
+        return StepsDailyRepository(stepsDailyDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideStepsDailyDatabase(@ApplicationContext appContext: Context): StepsDailyDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            StepsDailyDatabase::class.java,
+            "steps_daily_database"
+        ).build()
+    }
+
 
     @Provides
     @Singleton

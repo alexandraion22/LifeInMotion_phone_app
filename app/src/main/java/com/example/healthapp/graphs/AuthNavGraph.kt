@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.steps.daily.StepsDailyRepository
+import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.content.auth.LoginContent
 import com.example.healthapp.screens.content.auth.SignUpContent
@@ -18,7 +20,7 @@ import com.example.healthapp.screens.mainscreens.HomeScreen
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository) {
+fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository) {
     NavHost(
         navController = navController,
         route = Graph.AUTHENTICATION,
@@ -42,7 +44,7 @@ fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             )
         }
         composable(route = Graph.HOME) {
-            HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository)
+            HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository)
         }
     }
 }
