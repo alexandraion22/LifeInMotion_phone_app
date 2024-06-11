@@ -44,13 +44,14 @@ fun HomeScreen(
     bpmDailyRepository: BpmDailyRepository,
     bpmHourlyRepository: BpmHourlyRepository,
     stepsDailyRepository: StepsDailyRepository,
-    stepsHourlyRepository: StepsHourlyRepository
+    stepsHourlyRepository: StepsHourlyRepository,
+    bpmRepository: BpmRepository
 ) {
     Scaffold(
         topBar = { TopBar(navController = navController) },
         bottomBar = { BottomBar(navController = navController) }
     ) {
-        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
+        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository)
     }
 }
 

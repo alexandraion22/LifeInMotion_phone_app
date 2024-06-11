@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 
 val LightPurple = Color(0xFFAE79F2)
 val PsychedelicPurple = Color(0xFF761CEA)
+val DarkPurple = Color(0xFF58229D)
 val CoolGray = Color(0xFF333333)
 
 

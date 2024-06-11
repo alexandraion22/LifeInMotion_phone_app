@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LifeInMotion</string>
+    <string name="app_name">Life In Motion</string>
     <string name="toggle_password_visibility">Toggle Password Visibility</string>
     <string name="gender_female">Female</string>
     <string name="gender_male">Male</string>

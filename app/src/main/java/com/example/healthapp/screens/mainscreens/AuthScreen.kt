@@ -22,7 +22,8 @@ fun AuthScreen(
     bpmDailyRepository: BpmDailyRepository,
     bpmHourlyRepository: BpmHourlyRepository,
     stepsDailyRepository: StepsDailyRepository,
-    stepsHourlyRepository: StepsHourlyRepository
+    stepsHourlyRepository: StepsHourlyRepository,
+    bpmRepository: BpmRepository
 ) {
-    AuthNavGraph(navController = navController, userViewModel = userViewModel, startDestination = startDestination, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
+    AuthNavGraph(navController = navController, userViewModel = userViewModel, startDestination = startDestination, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository)
 }

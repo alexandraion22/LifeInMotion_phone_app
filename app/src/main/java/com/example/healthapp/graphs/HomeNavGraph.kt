@@ -24,14 +24,14 @@ import com.example.healthapp.screens.mainscreens.AuthScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository) {
+fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository) {
     NavHost(
         navController = navController,
         route = Graph.HOME,
         startDestination = BottomBarScreen.Home.route
     ) {
         composable(BottomBarScreen.Home.route) {
-            HomeContent(navController = navController, userViewModel = userViewModel)
+            HomeContent(navController = navController, userViewModel = userViewModel, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository)
         }
         composable(route = BottomBarScreen.Sleep.route) {
             ScreenContent(
@@ -64,7 +64,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             SettingsContent(navController = navController)
         }
         composable(route = Graph.AUTHENTICATION) {
-            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN", bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository)
+            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN", bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository)
         }
     }
 }

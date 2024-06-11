@@ -20,7 +20,7 @@ import com.example.healthapp.screens.mainscreens.HomeScreen
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository) {
+fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository) {
     NavHost(
         navController = navController,
         route = Graph.AUTHENTICATION,
@@ -44,7 +44,7 @@ fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             )
         }
         composable(route = Graph.HOME) {
-            HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository)
+            HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository)
         }
     }
 }

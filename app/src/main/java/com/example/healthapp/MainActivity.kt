@@ -43,6 +43,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var stepsDailyRepository: StepsDailyRepository
 
+    @Inject
+    lateinit var bpmRepository: BpmRepository
+
     @SuppressLint("CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +77,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
+                RootNavigationGraph(navController = rememberNavController(), startRoute = startRoute.value, userViewModel = userViewModel, startDestinationPage = startDestination.value, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository)
             }
         }
     }

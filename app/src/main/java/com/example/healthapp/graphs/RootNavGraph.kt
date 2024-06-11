@@ -28,7 +28,8 @@ fun RootNavigationGraph(
     bpmDailyRepository: BpmDailyRepository,
     bpmHourlyRepository: BpmHourlyRepository,
     stepsDailyRepository: StepsDailyRepository,
-    stepsHourlyRepository: StepsHourlyRepository
+    stepsHourlyRepository: StepsHourlyRepository,
+    bpmRepository: BpmRepository
 ) {
     NavHost(
         navController = navController,
@@ -37,14 +38,14 @@ fun RootNavigationGraph(
         // Authentication graph
         navigation(route = Graph.AUTHENTICATION, startDestination = startDestinationPage) {
             composable(route = startDestinationPage ) {
-                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
+                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository)
             }
 
         }
         // Home graph
         navigation(route = Graph.HOME, startDestination = BottomBarScreen.Home.route) {
             composable(route = BottomBarScreen.Home.route) {
-                HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
+                HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository)
             }
         }
         navigation(route = Graph.WELCOME, startDestination = "WELCOME") {
