@@ -31,6 +31,11 @@ sealed class BottomBarScreen(
         icon = R.drawable.ic_navbar_home
     )
 
+    object Bpm : BottomBarScreen(
+        route = "HOME/BPM",
+        icon = R.drawable.ic_navbar_home
+    )
+
     object ProfileSettings : BottomBarScreen(
         route = "PROFILE/SETTINGS",
         icon = R.drawable.ic_navbar_home

@@ -19,6 +19,7 @@ import com.example.healthapp.screens.content.home.HomeContent
 import com.example.healthapp.screens.content.home.ProfileContent
 import com.example.healthapp.screens.content.home.ProfileSettingsContent
 import com.example.healthapp.screens.content.home.ScreenContent
+import com.example.healthapp.screens.content.home.mainPage.StepsContent
 import com.example.healthapp.screens.mainscreens.AuthScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -48,9 +49,14 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
 
             ProfileContent(navController = navController, userViewModel = userViewModel)
         }
-        composable(route = BottomBarScreen.Steps.route) {
+        composable(route = BottomBarScreen.Bpm.route) {
             BpmContent(bpmHourlyRepository = bpmHourlyRepository, bpmDailyRepository = bpmDailyRepository)
         }
+
+        composable(route = BottomBarScreen.Steps.route) {
+            StepsContent(stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository)
+        }
+
         composable(route = BottomBarScreen.ProfileSettings.route) {
             ProfileSettingsContent(navController = navController, userViewModel = userViewModel)
         }

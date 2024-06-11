@@ -39,9 +39,14 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel) 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = "Hello, $fullName")
             Button(onClick = {
-                navController.navigate("HOME/STEPS")
+                navController.navigate("HOME/BPM")
             }) {
                 Text(text = "Go to Bpm screen")
+            }
+            Button(onClick = {
+                navController.navigate("HOME/STEPS")
+            }) {
+                Text(text = "Go to Steps screen")
             }
         }
     }

@@ -43,12 +43,11 @@ import com.example.healthapp.database.bpm.daily.BpmDaily
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
 import com.example.healthapp.database.bpm.hourly.BpmHourly
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
-import com.example.healthapp.database.steps.daily.StepsDailyRepository
-import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.service.toEpochMillis
 import com.example.healthapp.ui.theme.PsychedelicPurple
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.lang.Integer.max
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -187,7 +186,7 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
     val minBpm = bpmList.minOfOrNull { it.minBpm } ?: 0
     val maxBpm = bpmList.maxOfOrNull { it.maxBpm } ?: 240
 
-    val range = maxBpm - minBpm
+    val range = max(maxBpm - minBpm,1)
     val factor = 1000 / (range + 40).toFloat() // Adjust factor based on range
     val levels = (40..240 step 40).filter { it in minBpm - 39..maxBpm + 39 }
 
@@ -218,9 +217,9 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
                 drawIntoCanvas {
                     it.nativeCanvas.drawLine(
                         0f,
-                        yPos.toFloat(),
+                        yPos,
                         size.width - 50f,
-                        yPos.toFloat(),
+                        yPos,
                         paint
                     )
                 }
@@ -230,7 +229,7 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
             hourlyData.forEach { (hour, bpm) ->
                 bpm?.let {
                     val barUp = it.maxBpm.toFloat() * factor
-                    val barHeight = (it.maxBpm.toFloat() - it.minBpm.toFloat()) * factor
+                    val barHeight = (max((it.maxBpm.toFloat() - it.minBpm.toFloat()).toInt(),1)) * factor
                     drawRoundRect(
                         color = PsychedelicPurple,
                         topLeft = Offset(barSpacing * hour, start - barUp),
@@ -289,7 +288,7 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
     val minBpm = bpmList.minOfOrNull { it.minBpm } ?: 0
     val maxBpm = bpmList.maxOfOrNull { it.maxBpm } ?: 240
 
-    val range = maxBpm - minBpm
+    val range = max(maxBpm - minBpm,1)
     val factor = 1000 / (range + 40).toFloat() // Adjust factor based on range
 
     val levels = (40..240 step 40).filter { it in minBpm - 39..maxBpm + 39 }
@@ -334,7 +333,7 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                 val (date, bpm) = entry
                 bpm?.let {
                     val barUp = it.maxBpm.toFloat() * factor
-                    val barHeight = (it.maxBpm.toFloat() - it.minBpm.toFloat()) * factor
+                    val barHeight = (max((it.maxBpm.toFloat() - it.minBpm.toFloat()).toInt(),1)) * factor
                     drawRoundRect(
                         color = PsychedelicPurple,
                         topLeft = Offset(barSpacing * index, start - barUp),
@@ -398,7 +397,7 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
     val minBpm = bpmList.minOfOrNull { it.minBpm } ?: 0
     val maxBpm = bpmList.maxOfOrNull { it.maxBpm } ?: 240
 
-    val range = maxBpm - minBpm
+    val range = max(maxBpm - minBpm,1)
     val factor = 1000 / (range + 40).toFloat() // Adjust factor based on range
 
     val levels = (40..240 step 40).filter { it in minBpm - 39..maxBpm + 39 }
@@ -444,7 +443,7 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                 val (date, bpm) = entry
                 bpm?.let {
                     val barUp = it.maxBpm.toFloat() * factor
-                    val barHeight = (it.maxBpm.toFloat() - it.minBpm.toFloat()) * factor
+                    val barHeight = (max((it.maxBpm.toFloat() - it.minBpm.toFloat()).toInt(),1)) * factor
                     drawRoundRect(
                         color = PsychedelicPurple,
                         topLeft = Offset(barSpacing * index, start - barUp),
@@ -468,7 +467,7 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                             (start - 175).toFloat(), // Position below the bars
                             Paint().asFrameworkPaint().apply {
                                 color = colorOnPrimary.toArgb()
-                                textSize = 24f // Adjust text size as needed
+                                textSize = 36f // Adjust text size as needed
                                 textAlign = android.graphics.Paint.Align.CENTER
                                 typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
                             }
