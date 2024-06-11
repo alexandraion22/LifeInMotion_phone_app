@@ -9,6 +9,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,9 +34,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun ProfileContent(navController: NavHostController, userViewModel: UserViewModel) {
     val scope = rememberCoroutineScope()
+    val colorOnPrimary = colors.onPrimary
     var user by remember { mutableStateOf<User?>(null) }
-    var bmiColor by remember { mutableStateOf(Color.Black) }
-    var activityColor by remember { mutableStateOf(Color.Black) }
+    var bmiColor by remember { mutableStateOf(colorOnPrimary) }
+    var activityColor by remember { mutableStateOf(colorOnPrimary) }
     LaunchedEffect(Unit) {
         scope.launch {
             user = userViewModel.getUser()

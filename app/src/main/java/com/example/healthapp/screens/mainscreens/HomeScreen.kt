@@ -71,7 +71,7 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
     }
     if (bottomBarDestination) {
         TopAppBar(
-            title = { Text("Life in Motion") },
+            title = { },
             actions = {
                 IconButton(onClick = { expanded = true }) {
                     Icon(

@@ -41,7 +41,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel) 
             Button(onClick = {
                 navController.navigate("HOME/STEPS")
             }) {
-                Text(text = "Go to Steps screen")
+                Text(text = "Go to Bpm screen")
             }
         }
     }

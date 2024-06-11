@@ -49,7 +49,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             ProfileContent(navController = navController, userViewModel = userViewModel)
         }
         composable(route = BottomBarScreen.Steps.route) {
-            BpmContent(bpmHourlyRepository = bpmHourlyRepository, bpmDailyRepository = bpmDailyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository)
+            BpmContent(bpmHourlyRepository = bpmHourlyRepository, bpmDailyRepository = bpmDailyRepository)
         }
         composable(route = BottomBarScreen.ProfileSettings.route) {
             ProfileSettingsContent(navController = navController, userViewModel = userViewModel)
