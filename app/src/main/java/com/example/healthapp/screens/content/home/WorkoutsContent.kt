@@ -1,18 +1,22 @@
 package com.example.healthapp.screens.content.home
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.TextField
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,64 +25,105 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import androidx.compose.material.Button
-import androidx.compose.material.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 
+data class Video(
+    val videoId: String,
+    val title: String,
+    val thumbnailUrl: String,
+    val creator: String
+)
 
 @Composable
 fun WorkoutsContent() {
     var videos by remember { mutableStateOf(emptyList<Video>()) }
     var isLoading by remember { mutableStateOf(false) }
+    var nextPageToken by remember { mutableStateOf<String?>(null) }
+    var prevPageTokens by remember { mutableStateOf<List<String>>(emptyList()) }
+    var searchQuery by remember { mutableStateOf("") } // State for the search query
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        // Search bar
+        TextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Enter search query") },
+            singleLine = true,
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
                 if (!isLoading) {
                     isLoading = true
-                    fetchVideos { newVideos ->
+                    fetchVideos(null,searchQuery) { newVideos, newNextPageToken, _ ->
                         videos = newVideos
+                        nextPageToken = newNextPageToken
+                        prevPageTokens = emptyList() // Reset previous tokens
                         isLoading = false
                     }
                 }
             },
             enabled = !isLoading
         ) {
-            Text(if (isLoading) "Loading..." else "Load Videos")
+            Text(if (isLoading) "Loading..." else "Search")
         }
         Spacer(modifier = Modifier.height(16.dp))
-        VideoListContent(videos)
-    }
-}
-
-@Composable
-fun VideoListContent(videos: List<Video>) {
-    Column {
-        for (video in videos) {
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = video.title)
+        if (videos.isNotEmpty()) {
+            Row {
+                Button(
+                    onClick = {
+                        if (!isLoading && prevPageTokens.isNotEmpty()) {
+                            isLoading = true
+                            val prevPageToken = if (prevPageTokens.size > 1) prevPageTokens[prevPageTokens.size - 2] else null
+                            fetchVideos(prevPageToken,searchQuery) { newVideos, newNextPageToken, _ ->
+                                videos = newVideos
+                                nextPageToken = newNextPageToken
+                                prevPageTokens = prevPageTokens.dropLast(1) // Remove the last token
+                                isLoading = false
+                            }
+                        }
+                    },
+                    enabled = !isLoading && prevPageTokens.isNotEmpty()
+                ) {
+                    Text("Previous")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        if (!isLoading) {
+                            isLoading = true
+                            fetchVideos(nextPageToken,searchQuery) { newVideos, newNextPageToken, newPrevPageToken ->
+                                videos = newVideos
+                                nextPageToken = newNextPageToken
+                                prevPageTokens = prevPageTokens + listOfNotNull(newPrevPageToken) // Add current token to previous tokens
+                                isLoading = false
+                            }
+                        }
+                    },
+                    enabled = !isLoading
+                ) {
+                    Text(if (isLoading) "Loading..." else "Next")
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            VideoListContent(videos)
         }
     }
 }
 
-data class Video(val title: String)
-
-private fun fetchVideos(onSuccess: (List<Video>) -> Unit) {
+private fun fetchVideos(pageToken: String?, query: String, onSuccess: (List<Video>, String?, String?) -> Unit) {
     GlobalScope.launch(Dispatchers.IO) {
-        val query = "dogs"
         val maxResults = 10
         val apiKey = "AIzaSyBkgRvDZDq5xXj4KawIv5K5FvZs0q63xtw"
 
-        val url =
-            URL("https://www.googleapis.com/youtube/v3/search?key=$apiKey&q=$query&maxResults=$maxResults")
-        val connection = url.openConnection() as HttpURLConnection
+        val searchUrl = URL("https://www.googleapis.com/youtube/v3/search?key=$apiKey&q=$query&type=video&maxResults=$maxResults&pageToken=${pageToken ?: ""}")
+        Log.e("HERE",searchUrl.toString())
+        val connection = searchUrl.openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
 
         val responseCode = connection.responseCode
@@ -95,21 +140,95 @@ private fun fetchVideos(onSuccess: (List<Video>) -> Unit) {
             reader.close()
             inputStream.close()
 
-            val videos = mutableListOf<Video>()
             val jsonObject = JSONObject(response.toString())
             val items = jsonObject.getJSONArray("items")
+            val nextPageToken = jsonObject.optString("nextPageToken", null)
+            val currentPageToken = pageToken
+
+            val videos = mutableListOf<Video>()
             for (i in 0 until items.length()) {
                 val item = items.getJSONObject(i)
                 val id = item.getJSONObject("id")
                 val videoId = id.getString("videoId")
-                videos.add(Video(videoId))
+
+                // Fetch additional details for each video
+                val videoDetailsUrl = URL("https://www.googleapis.com/youtube/v3/videos?key=$apiKey&id=$videoId&part=snippet")
+                val videoDetailsConnection = videoDetailsUrl.openConnection() as HttpURLConnection
+                videoDetailsConnection.requestMethod = "GET"
+
+                val videoDetailsResponseCode = videoDetailsConnection.responseCode
+                if (videoDetailsResponseCode == HttpURLConnection.HTTP_OK) {
+                    val videoDetailsInputStream = videoDetailsConnection.inputStream
+                    val videoDetailsReader = BufferedReader(InputStreamReader(videoDetailsInputStream))
+                    val videoDetailsResponse = StringBuilder()
+
+                    var videoDetailsLine: String?
+                    while (videoDetailsReader.readLine().also { videoDetailsLine = it } != null) {
+                        videoDetailsResponse.append(videoDetailsLine)
+                    }
+
+                    videoDetailsReader.close()
+                    videoDetailsInputStream.close()
+
+                    val videoDetailsJson = JSONObject(videoDetailsResponse.toString())
+                    val videoDetailsItems = videoDetailsJson.getJSONArray("items")
+                    if (videoDetailsItems.length() > 0) {
+                        val videoDetailsItem = videoDetailsItems.getJSONObject(0)
+                        val snippet = videoDetailsItem.getJSONObject("snippet")
+                        val title = snippet.getString("title")
+                        val thumbnailUrl = snippet.getJSONObject("thumbnails").getJSONObject("high").getString("url")
+                        val creator = snippet.getString("channelTitle")
+
+                        videos.add(Video(videoId, title, thumbnailUrl, creator))
+                    }
+                } else {
+                    Log.e("HERE", "Failed to fetch video details from YouTube API. Response code: $videoDetailsResponseCode")
+                }
+
+                videoDetailsConnection.disconnect()
             }
 
-            onSuccess(videos)
+            onSuccess(videos, nextPageToken, currentPageToken)
         } else {
             Log.e("HERE", "Failed to fetch data from YouTube API. Response code: $responseCode")
         }
 
         connection.disconnect()
+    }
+}
+
+@Composable
+fun VideoListContent(videos: List<Video>) {
+    val context = LocalContext.current
+
+    LazyColumn {
+        items(videos) { video ->
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=${video.videoId}"))
+                        context.startActivity(intent)
+                    }
+            ) {
+                Image(
+                    painter = rememberImagePainter(video.thumbnailUrl),
+                    contentDescription = "Thumbnail",
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(90.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .fillMaxHeight()
+                ) {
+                    Text(text = video.title, modifier = Modifier.padding(bottom = 4.dp), maxLines = 2)
+                    Text(text = "Creator: ${video.creator}", maxLines = 1)
+                }
+            }
+        }
     }
 }
