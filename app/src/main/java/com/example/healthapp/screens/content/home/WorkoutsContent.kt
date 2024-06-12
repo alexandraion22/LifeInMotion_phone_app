@@ -38,7 +38,6 @@ fun WorkoutsContent() {
     var videos by remember { mutableStateOf(emptyList<Video>()) }
     var isLoading by remember { mutableStateOf(false) }
     var nextPageToken by remember { mutableStateOf<String?>(null) }
-    var prevPageTokens by remember { mutableStateOf<List<String>>(emptyList()) }
     var searchQuery by remember { mutableStateOf("") } // State for the search query
 
     Column(
@@ -60,10 +59,9 @@ fun WorkoutsContent() {
             onClick = {
                 if (!isLoading) {
                     isLoading = true
-                    fetchVideos(null,searchQuery) { newVideos, newNextPageToken, _ ->
+                    fetchVideos(null,searchQuery) { newVideos, newNextPageToken ->
                         videos = newVideos
                         nextPageToken = newNextPageToken
-                        prevPageTokens = emptyList() // Reset previous tokens
                         isLoading = false
                     }
                 }
@@ -73,55 +71,32 @@ fun WorkoutsContent() {
             Text(if (isLoading) "Loading..." else "Search")
         }
         Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                if (!isLoading) {
+                    isLoading = true
+                    fetchVideos(nextPageToken,searchQuery) { newVideos, newNextPageToken ->
+                        videos+= newVideos
+                        isLoading = false
+                    }
+                }
+            },
+            enabled = !isLoading
+        ) {
+            Text(if (isLoading) "Loading..." else "Next")
+        }
         if (videos.isNotEmpty()) {
-            Row {
-                Button(
-                    onClick = {
-                        if (!isLoading && prevPageTokens.isNotEmpty()) {
-                            isLoading = true
-                            val prevPageToken = if (prevPageTokens.size > 1) prevPageTokens[prevPageTokens.size - 2] else null
-                            fetchVideos(prevPageToken,searchQuery) { newVideos, newNextPageToken, _ ->
-                                videos = newVideos
-                                nextPageToken = newNextPageToken
-                                prevPageTokens = prevPageTokens.dropLast(1) // Remove the last token
-                                isLoading = false
-                            }
-                        }
-                    },
-                    enabled = !isLoading && prevPageTokens.isNotEmpty()
-                ) {
-                    Text("Previous")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        if (!isLoading) {
-                            isLoading = true
-                            fetchVideos(nextPageToken,searchQuery) { newVideos, newNextPageToken, newPrevPageToken ->
-                                videos = newVideos
-                                nextPageToken = newNextPageToken
-                                prevPageTokens = prevPageTokens + listOfNotNull(newPrevPageToken) // Add current token to previous tokens
-                                isLoading = false
-                            }
-                        }
-                    },
-                    enabled = !isLoading
-                ) {
-                    Text(if (isLoading) "Loading..." else "Next")
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
             VideoListContent(videos)
         }
     }
 }
 
-private fun fetchVideos(pageToken: String?, query: String, onSuccess: (List<Video>, String?, String?) -> Unit) {
+private fun fetchVideos(pageToken: String?, query: String, onSuccess: (List<Video>, String?) -> Unit) {
     GlobalScope.launch(Dispatchers.IO) {
         val maxResults = 10
-        val apiKey = "AIzaSyBkgRvDZDq5xXj4KawIv5K5FvZs0q63xtw"
+        val apiKey = "AIzaSyB68zQeAKVL--6wMjwZ28YB2CSZJVXYqBU"
 
-        val searchUrl = URL("https://www.googleapis.com/youtube/v3/search?key=$apiKey&q=$query&type=video&maxResults=$maxResults&pageToken=${pageToken ?: ""}")
+        val searchUrl = URL("https://www.googleapis.com/youtube/v3/search?key=$apiKey&q=$query&type=video&channelId=UChVRfsT_ASBZk10o0An7Ucg&maxResults=$maxResults&pageToken=${pageToken ?: ""}")
         Log.e("HERE",searchUrl.toString())
         val connection = searchUrl.openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
@@ -143,7 +118,6 @@ private fun fetchVideos(pageToken: String?, query: String, onSuccess: (List<Vide
             val jsonObject = JSONObject(response.toString())
             val items = jsonObject.getJSONArray("items")
             val nextPageToken = jsonObject.optString("nextPageToken", null)
-            val currentPageToken = pageToken
 
             val videos = mutableListOf<Video>()
             for (i in 0 until items.length()) {
@@ -188,7 +162,7 @@ private fun fetchVideos(pageToken: String?, query: String, onSuccess: (List<Vide
                 videoDetailsConnection.disconnect()
             }
 
-            onSuccess(videos, nextPageToken, currentPageToken)
+            onSuccess(videos, nextPageToken)
         } else {
             Log.e("HERE", "Failed to fetch data from YouTube API. Response code: $responseCode")
         }
@@ -201,7 +175,7 @@ private fun fetchVideos(pageToken: String?, query: String, onSuccess: (List<Vide
 fun VideoListContent(videos: List<Video>) {
     val context = LocalContext.current
 
-    LazyColumn {
+    LazyColumn (modifier = Modifier.fillMaxHeight(0.92f)){
         items(videos) { video ->
             Row(
                 modifier = Modifier
