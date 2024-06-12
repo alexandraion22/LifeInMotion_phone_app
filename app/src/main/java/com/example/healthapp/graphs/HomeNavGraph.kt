@@ -19,6 +19,7 @@ import com.example.healthapp.screens.content.home.HomeContent
 import com.example.healthapp.screens.content.home.ProfileContent
 import com.example.healthapp.screens.content.home.ProfileSettingsContent
 import com.example.healthapp.screens.content.home.ScreenContent
+import com.example.healthapp.screens.content.home.WorkoutsContent
 import com.example.healthapp.screens.content.home.mainPage.StepsContent
 import com.example.healthapp.screens.mainscreens.AuthScreen
 
@@ -40,10 +41,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             )
         }
         composable(route = BottomBarScreen.Workout.route) {
-            ScreenContent(
-                name = BottomBarScreen.Workout.route,
-                onClick = { }
-            )
+            WorkoutsContent()
         }
         composable(route = BottomBarScreen.Profile.route) {
 
