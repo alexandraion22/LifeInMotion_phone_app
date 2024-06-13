@@ -10,7 +10,8 @@ val LightPurple = Color(0xFFAE79F2)
 val PsychedelicPurple = Color(0xFF761CEA)
 val DarkPurple = Color(0xFF58229D)
 val CoolGray = Color(0xFF333333)
-
+val VeryLightGray = Color(0XFFF0F0F0)
+val KindaLightGray = Color(0xFFE2E8F0)
 
 val DarkColorPalette = darkColors(
     primary = Color.Black,

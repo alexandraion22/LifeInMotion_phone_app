@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
@@ -74,7 +75,7 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
     }
     if (bottomBarDestination) {
         TopAppBar(
-            title = { },
+            title = { Text("Life in Motion")},
             actions = {
                 IconButton(onClick = { expanded = true }) {
                     Icon(
@@ -119,7 +120,11 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
                     }
                 }
             },
-            elevation = 0.dp // Remove the elevation to make the line invisible
+            modifier = Modifier.height(48.dp),
+            windowInsets = WindowInsets(
+                top = 0.dp,
+                bottom = 0.dp
+            ),// Set the desired height for the TopAppBar
         )
     }
 }

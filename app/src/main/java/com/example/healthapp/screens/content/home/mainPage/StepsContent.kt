@@ -46,6 +46,7 @@ import com.example.healthapp.database.steps.daily.StepsDailyRepository
 import com.example.healthapp.database.steps.hourly.StepsHourly
 import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.service.toEpochMillis
+import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.PsychedelicPurple
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -106,7 +107,7 @@ fun StepsContent(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.88f)
-                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(24.dp))
+                .border(1.dp, KindaLightGray, RoundedCornerShape(24.dp))
                 .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

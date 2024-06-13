@@ -1,5 +1,6 @@
 package com.example.healthapp.screens.content.home.profilePage
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +31,8 @@ import androidx.navigation.NavHostController
 import com.example.healthapp.R
 import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
+import com.example.healthapp.ui.theme.KindaLightGray
+import com.example.healthapp.ui.theme.VeryLightGray
 import kotlinx.coroutines.launch
 
 @Composable
@@ -61,7 +65,9 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
 
     Box(
         modifier = Modifier
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .background(color = VeryLightGray)
+            .fillMaxHeight(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -72,9 +78,10 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
             Box(
                 Modifier
                     .fillMaxWidth(0.9f)
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(24.dp))
-                    .padding(top = 24.dp, start = 24.dp, end = 20.dp, bottom = 24.dp),
-            ) {
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(color = Color.White)
+                    .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                    .padding(top = 24.dp, start = 24.dp, end = 20.dp, bottom = 24.dp)) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     user?.let {
                         Text(
@@ -153,7 +160,9 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(24.dp))
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(color = Color.White)
+                    .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
                     .padding(top = 24.dp, bottom = 24.dp, start = 24.dp, end = 24.dp)
             ) {
                 Column {
@@ -205,7 +214,7 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
                     }
                 }
             }
-
+            Spacer(modifier = Modifier.height(85.dp))
         }
     }
 }

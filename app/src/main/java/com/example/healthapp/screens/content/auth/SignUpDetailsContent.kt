@@ -34,6 +34,7 @@ import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.screens.content.home.profilePage.getValidationMessage
+import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.example.healthapp.utils.calculateBMI
 import com.google.firebase.auth.FirebaseAuth
@@ -223,7 +224,7 @@ fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) 
                 .background(colors.primary)
                 .border(
                     1.dp,
-                    Color(0xFFE2E8F0),
+                    KindaLightGray,
                     if (showDropdown) RoundedCornerShape(
                         topStart = 16.dp,
                         topEnd = 16.dp
@@ -265,7 +266,7 @@ fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) 
                         .fillMaxWidth(width)
                         .clip(RoundedCornerShape(16.dp))
                         .heightIn(max = 180.dp)
-                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
+                        .border(1.dp, KindaLightGray, RoundedCornerShape(16.dp)),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     displayList.onEachIndexed { index, item ->

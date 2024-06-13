@@ -1,8 +1,12 @@
 package com.example.healthapp.screens.content.home.mainPage
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import com.example.healthapp.database.users.UserViewModel
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,9 +46,12 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
+import coil.compose.rememberImagePainter
 import com.example.healthapp.ui.theme.DarkPurple
+import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.LightPurple
 import com.example.healthapp.ui.theme.PsychedelicPurple
+import com.example.healthapp.ui.theme.VeryLightGray
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -73,7 +80,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().background(color = VeryLightGray)
     ) {
         Column( horizontalAlignment = Alignment.CenterHorizontally) {
             Row {
@@ -84,9 +91,10 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .fillMaxHeight(0.18f)
                         .padding(10.dp) // Add space between boxes
                         .clip(RoundedCornerShape(24.dp))
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(24.dp))
+                        .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                        .background(color = Color.White)
                         .clickable { navController.navigate("HOME/BPM") }
-                        .padding(8.dp)
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                         .verticalScroll(rememberScrollState()),
                     contentAlignment = Alignment.Center
                 ) {
@@ -135,9 +143,10 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .fillMaxHeight(0.18f)
                         .padding(10.dp) // Add space between boxes
                         .clip(RoundedCornerShape(24.dp))
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(24.dp))
+                        .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                        .background(color = Color.White)
                         .clickable { navController.navigate("HOME/Steps") }
-                        .padding(8.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(
@@ -187,9 +196,10 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .fillMaxHeight(0.22f)
                         .padding(10.dp) // Add space between boxes
                         .clip(RoundedCornerShape(24.dp))
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(24.dp))
+                        .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                        .background(color = Color.White)
                         .clickable { navController.navigate("HOME/BPM") }
-                        .padding(8.dp)
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                         .verticalScroll(rememberScrollState()),
                     contentAlignment = Alignment.Center
                 ) {
@@ -243,9 +253,10 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .fillMaxHeight(0.22f)
                         .padding(10.dp) // Add space between boxes
                         .clip(RoundedCornerShape(24.dp))
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(24.dp))
+                        .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                        .background(color = Color.White)
                         .clickable { navController.navigate("HOME/Steps") }
-                        .padding(8.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(
@@ -299,7 +310,8 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .fillMaxHeight(0.6f)
                         .padding(top = 10.dp, end = 10.dp, bottom = 15.dp, start = 10.dp) // Add space between boxes
                         .clip(RoundedCornerShape(24.dp))
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(24.dp))
+                        .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                        .background(color = Color.White)
                         .clickable { navController.navigate("HOME/Steps") }
                         .padding(top = 15.dp, start = 10.dp, bottom = 0.dp, end = 15.dp),
                     contentAlignment = Alignment.Center) {
@@ -366,7 +378,8 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .fillMaxHeight(0.7f)
                         .padding(top = 5.dp , bottom = 20.dp, start = 10.dp, end = 10.dp) // Add space between boxes
                         .clip(RoundedCornerShape(24.dp))
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(24.dp))
+                        .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                        .background(color = Color.White)
                         .clickable { navController.navigate("HOME/Steps") }
                         .padding(6.dp),
                     contentAlignment = Alignment.Center,
@@ -378,15 +391,26 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                     ) {
 
                         Row {
-                            Text(
-                                text = "Streak",
-                                fontSize = 20.sp
+                            Column{
+                                Text(
+                                    text = "Streak",
+                                    fontSize = 24.sp
+                                )
+                                Text(
+                                    text = "Well done",
+                                    fontSize = 14.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1f))
+                            Image(
+                                painter = rememberImagePainter(
+                                    data = R.drawable.streak
+                                ),
+                                contentDescription = "Thumbnail",
+                                modifier = Modifier
+                                    .height(36.dp)
                             )
                         }
-                        Text(
-                            text = "Well done",
-                            fontSize = 14.sp
-                        )
                         Text(
                             text = "You’ve kept your healthy streak for 2 days",
                             fontSize = 14.sp

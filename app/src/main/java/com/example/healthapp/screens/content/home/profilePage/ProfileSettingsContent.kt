@@ -1,6 +1,7 @@
 package com.example.healthapp.screens.content.home.profilePage
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,12 +22,15 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.screens.content.auth.CustomSnackbarHost
 import com.example.healthapp.screens.content.auth.CustomTextField
 import com.example.healthapp.screens.content.auth.DropdownList
+import com.example.healthapp.ui.theme.KindaLightGray
+import com.example.healthapp.ui.theme.VeryLightGray
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.example.healthapp.utils.calculateBMI
 import com.google.firebase.auth.FirebaseAuth
@@ -75,7 +79,7 @@ fun ProfileSettingsContent(navController: NavHostController, userViewModel: User
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().background(color = VeryLightGray)
             ) {
                 Column(
                     modifier = Modifier
@@ -97,7 +101,9 @@ fun ProfileSettingsContent(navController: NavHostController, userViewModel: User
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
-                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(24.dp))
+                            .clip(RoundedCornerShape(24.dp))
+                            .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                            .background(color = Color.White)
                             .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)
                     ) {
                         Column(

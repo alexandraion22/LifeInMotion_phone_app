@@ -34,6 +34,7 @@ import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.Graph
 import com.example.healthapp.ui.theme.CoolGray
+import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
@@ -238,7 +239,7 @@ fun CustomTextField(
             .fillMaxWidth()
             .padding(bottom = 8.dp)
             .focusRequester(focusRequester)
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
+            .border(1.dp, KindaLightGray, RoundedCornerShape(16.dp)),
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,
             keyboardType = keyboardType
@@ -269,7 +270,7 @@ fun CustomPasswordField(
             .fillMaxWidth()
             .padding(bottom = 8.dp)
             .focusRequester(passwordFocusRequester)
-            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp)),
+            .border(1.dp, KindaLightGray, RoundedCornerShape(16.dp)),
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             val image = if (passwordVisible) R.drawable.ic_visibility_on else R.drawable.ic_visibility_off

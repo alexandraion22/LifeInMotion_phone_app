@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Space
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -36,7 +37,9 @@ import coil.compose.rememberImagePainter
 import com.example.healthapp.R
 import com.example.healthapp.database.schedule.WorkoutSchedule
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
+import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.PsychedelicPurple
+import com.example.healthapp.ui.theme.VeryLightGray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,16 +61,18 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository) {
             }
         }
         Box(
-            modifier = Modifier.fillMaxHeight(0.94f)
+            modifier = Modifier.fillMaxHeight(0.94f).background(color = VeryLightGray)
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(10.dp)
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.98f)
+                    .padding(horizontal = 10.dp)
                     .verticalScroll(
                         rememberScrollState()
                     )
             ) {
+                Spacer (modifier = Modifier.height(12.dp))
                 Box(
                     modifier = Modifier
                         .fillMaxHeight(0.25f)
@@ -143,7 +148,7 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(24.dp))
-                        .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(24.dp)),
+                        .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp)),
                 ) {
                     Column(
                         modifier = Modifier.padding(8.dp)
@@ -157,7 +162,7 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository) {
                                 },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "Workout Schedule",
                                 fontSize = 24.sp,
@@ -223,7 +228,6 @@ fun DayItem(day: String, isExpanded: Boolean, workoutScheduleRepository: Workout
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     val workoutsSchedulesLocal = remember { List(8) { mutableStateOf<Set<String>>(emptySet()) } }
-    Log.e("YES","HERE")
     val daysIndexes = mapOf(
         "Monday" to 1,
         "Tuesday" to 2,
@@ -273,8 +277,9 @@ fun DayItem(day: String, isExpanded: Boolean, workoutScheduleRepository: Workout
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFE2E8F0)),
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, KindaLightGray, RoundedCornerShape(16.dp))
+            .background(VeryLightGray),
     ) {
         Row(
             modifier = Modifier
@@ -305,7 +310,7 @@ fun DayItem(day: String, isExpanded: Boolean, workoutScheduleRepository: Workout
                 modifier = Modifier.fillMaxWidth(),
                 ) {
                 Column(
-                    modifier = Modifier.background(Color(0xFFE2E8F0)),
+                    modifier = Modifier.background(VeryLightGray),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Spacer(modifier = Modifier.height(8.dp))
@@ -315,7 +320,8 @@ fun DayItem(day: String, isExpanded: Boolean, workoutScheduleRepository: Workout
                             .fillMaxWidth()
                             .padding(bottom = 8.dp)
                             .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.Bottom
                     ) {
                         Spacer(modifier = Modifier.height(4.dp))
                         val videoIds = workoutsSchedulesLocal[daysIndexes[day]!!].value.toList()
