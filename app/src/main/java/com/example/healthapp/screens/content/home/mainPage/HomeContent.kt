@@ -1,8 +1,7 @@
 package com.example.healthapp.screens.content.home.mainPage
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -47,15 +46,20 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import coil.compose.rememberImagePainter
+import com.example.healthapp.database.activity.ActivityDailyRepository
+import com.example.healthapp.database.calories.CaloriesDailyRepository
+import com.example.healthapp.database.goals.Goals
+import com.example.healthapp.database.goals.GoalsRepository
 import com.example.healthapp.ui.theme.DarkPurple
 import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.LightPurple
 import com.example.healthapp.ui.theme.PsychedelicPurple
 import com.example.healthapp.ui.theme.VeryLightGray
+import kotlin.math.floor
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository) {
+fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository, caloriesDailyRepository: CaloriesDailyRepository, activityDailyRepository: ActivityDailyRepository, goalsRepository: GoalsRepository) {
     val scope = rememberCoroutineScope()
     var fullName by remember { mutableStateOf("") }
     var stepsToday by remember { mutableStateOf<StepsDaily?>(null) }
@@ -64,7 +68,10 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
     val startOfDay = currentTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
     var stepsTodayK by remember { mutableDoubleStateOf(0.0) }
     var bpmLast by remember { mutableStateOf<Bpm?>(null) }
-
+    var caloriesToday by remember { mutableIntStateOf(0) }
+    var activityToday by remember { mutableStateOf(0) }
+    var goals by remember { mutableStateOf<Goals?>(null) }
+    var stepsTodayNr by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) {
         scope.launch {
             user = userViewModel.getUser()
@@ -73,14 +80,27 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
         stepsToday = withContext(Dispatchers.IO) {
             stepsDailyRepository.getEntryForDay(startOfDay)
         }
-        stepsTodayK = String.format("%.1f", (stepsToday?.steps ?: 0) / 1000.0).toDouble()
+        stepsTodayNr = stepsToday?.steps ?: 0
+        stepsTodayK = String.format("%.1f", floor((stepsToday?.steps ?: 0) / 1000.0)).toDouble()
         bpmLast = withContext(Dispatchers.IO) {
             bpmRepository.getFirst()
         }
+        caloriesToday = withContext(Dispatchers.IO) {
+            caloriesDailyRepository.getEntryForDay(startOfDay)?.totalCalories ?: 0
+        }
+        activityToday = withContext(Dispatchers.IO) {
+            activityDailyRepository.getEntryForDay(startOfDay)?.activeTime ?: 0
+        }
+        goals = withContext(Dispatchers.IO) {
+            goalsRepository.getFirst()
+        }
+        Log.e("HERE",goals.toString())
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(color = VeryLightGray)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = VeryLightGray)
     ) {
         Column( horizontalAlignment = Alignment.CenterHorizontally) {
             Row {
@@ -163,7 +183,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = "${stepsTodayK}K",
+                                    text = if ((stepsToday?.steps ?: 0) < 1000) stepsToday?.steps.toString() else "${stepsTodayK}K",
                                     fontSize = 28.sp, // Adjusted font size for the number
                                     fontWeight = FontWeight.Bold,
                                     color = colors.onPrimary
@@ -278,7 +298,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = "327",
+                                    text = caloriesToday.toString(),
                                     fontSize = 28.sp, // Adjusted font size for the number
                                     fontWeight = FontWeight.Bold,
                                     color = colors.onPrimary
@@ -308,11 +328,16 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                     modifier = Modifier
                         .fillMaxWidth() // Half the width of the screen
                         .fillMaxHeight(0.6f)
-                        .padding(top = 10.dp, end = 10.dp, bottom = 15.dp, start = 10.dp) // Add space between boxes
+                        .padding(
+                            top = 10.dp,
+                            end = 10.dp,
+                            bottom = 15.dp,
+                            start = 10.dp
+                        ) // Add space between boxes
                         .clip(RoundedCornerShape(24.dp))
                         .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
                         .background(color = Color.White)
-                        .clickable { navController.navigate("HOME/Steps") }
+                        .clickable { navController.navigate("HOME/SETGOALS") }
                         .padding(top = 15.dp, start = 10.dp, bottom = 0.dp, end = 15.dp),
                     contentAlignment = Alignment.Center) {
                     Row {
@@ -323,9 +348,9 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                                 fontSize = 24.sp
                             )
                             CircularProgress(
-                                stepsProgress = 0.9f,
-                                caloriesBurnedProgress = 0.75f,
-                                workoutProgress = 0.8f,
+                                stepsProgress = (stepsTodayNr / (goals?.stepsGoal ?: 1).toFloat()),
+                                caloriesBurnedProgress = (caloriesToday/ (goals?.caloriesGoal ?: 1).toFloat()),
+                                workoutProgress = (activityToday/ (goals?.activityGoal ?: 1).toFloat()),
                                 size = 200.dp
                             )
                         }
@@ -341,7 +366,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             )
                             Text(
                                 modifier = Modifier.padding(bottom = 4.dp),
-                                text = "1500/2100",
+                                text = "${stepsToday?.steps}/${goals?.stepsGoal}",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -352,7 +377,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             )
                             Text(
                                 modifier = Modifier.padding(bottom = 4.dp),
-                                text = "327/350",
+                                text = "$caloriesToday/${goals?.caloriesGoal}",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -363,7 +388,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             )
                             Text(
                                 modifier = Modifier.padding(bottom = 4.dp),
-                                text = "103/150 minutes",
+                                text = "$activityToday/${goals?.activityGoal} minutes",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -376,7 +401,12 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                     modifier = Modifier
                         .fillMaxWidth() // Half the width of the screen
                         .fillMaxHeight(0.7f)
-                        .padding(top = 5.dp , bottom = 20.dp, start = 10.dp, end = 10.dp) // Add space between boxes
+                        .padding(
+                            top = 5.dp,
+                            bottom = 20.dp,
+                            start = 10.dp,
+                            end = 10.dp
+                        ) // Add space between boxes
                         .clip(RoundedCornerShape(24.dp))
                         .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
                         .background(color = Color.White)

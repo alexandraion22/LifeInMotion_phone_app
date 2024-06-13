@@ -36,6 +36,11 @@ sealed class BottomBarScreen(
         icon = R.drawable.ic_navbar_home
     )
 
+    object SetGoals : BottomBarScreen(
+        route = "HOME/SETGOALS",
+        icon = R.drawable.ic_navbar_home
+    )
+
     object ProfileSettings : BottomBarScreen(
         route = "PROFILE/SETTINGS",
         icon = R.drawable.ic_navbar_home

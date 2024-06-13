@@ -5,9 +5,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.healthapp.database.activity.ActivityDailyRepository
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.calories.CaloriesDailyRepository
+import com.example.healthapp.database.goals.GoalsRepository
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
 import com.example.healthapp.database.steps.daily.StepsDailyRepository
 import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
@@ -25,7 +28,10 @@ fun AuthScreen(
     stepsDailyRepository: StepsDailyRepository,
     stepsHourlyRepository: StepsHourlyRepository,
     bpmRepository: BpmRepository,
-    workoutScheduleRepository: WorkoutScheduleRepository
+    workoutScheduleRepository: WorkoutScheduleRepository,
+    caloriesDailyRepository: CaloriesDailyRepository,
+    activityDailyRepository: ActivityDailyRepository,
+    goalsRepository: GoalsRepository
 ) {
-    AuthNavGraph(navController = navController, userViewModel = userViewModel, startDestination = startDestination, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository)
+    AuthNavGraph(navController = navController, userViewModel = userViewModel, startDestination = startDestination, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository)
 }

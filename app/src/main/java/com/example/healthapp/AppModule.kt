@@ -2,6 +2,9 @@ package com.example.healthapp
 
 import android.content.Context
 import androidx.room.Room
+import com.example.healthapp.database.activity.ActivityDailyDao
+import com.example.healthapp.database.activity.ActivityDailyDatabase
+import com.example.healthapp.database.activity.ActivityDailyRepository
 import com.example.healthapp.database.bpm.daily.BpmDaily
 import com.example.healthapp.database.bpm.daily.BpmDailyDao
 import com.example.healthapp.database.bpm.daily.BpmDailyDatabase
@@ -13,6 +16,12 @@ import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmDao
 import com.example.healthapp.database.bpm.last.BpmDatabase
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.calories.CaloriesDailyDao
+import com.example.healthapp.database.calories.CaloriesDailyDatabase
+import com.example.healthapp.database.calories.CaloriesDailyRepository
+import com.example.healthapp.database.goals.GoalsDao
+import com.example.healthapp.database.goals.GoalsDatabase
+import com.example.healthapp.database.goals.GoalsRepository
 import com.example.healthapp.database.schedule.WorkoutScheduleDao
 import com.example.healthapp.database.schedule.WorkoutScheduleDatabase
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
@@ -168,4 +177,69 @@ object AppModule {
         ).build()
     }
 
+    @Provides
+    @Singleton
+    fun provideCaloriesDailyDao(database: CaloriesDailyDatabase): CaloriesDailyDao {
+        return database.caloriesDailyDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCaloriesDailyRepository(caloriesDailyDao: CaloriesDailyDao): CaloriesDailyRepository {
+        return CaloriesDailyRepository(caloriesDailyDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCaloriesDailyDatabase(@ApplicationContext appContext: Context): CaloriesDailyDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            CaloriesDailyDatabase::class.java,
+            "calories_daily_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideActivityDailyDao(database: ActivityDailyDatabase): ActivityDailyDao {
+        return database.activityDailyDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideActivityDailyRepository(activityDailyDao: ActivityDailyDao): ActivityDailyRepository {
+        return ActivityDailyRepository(activityDailyDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideActivityDailyDatabase(@ApplicationContext appContext: Context): ActivityDailyDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            ActivityDailyDatabase::class.java,
+            "activity_daily_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoalsDao(database: GoalsDatabase): GoalsDao {
+        return database.goalsDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoalsRepository(goalsDao: GoalsDao): GoalsRepository {
+        return GoalsRepository(goalsDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoalsDatabase(@ApplicationContext appContext: Context): GoalsDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            GoalsDatabase::class.java,
+            "goals_database"
+        ).build()
+    }
 }
