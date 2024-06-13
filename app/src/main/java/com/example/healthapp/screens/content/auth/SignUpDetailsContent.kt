@@ -1,7 +1,6 @@
 package com.example.healthapp.screens.content.auth
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,7 +33,7 @@ import androidx.compose.ui.focus.FocusRequester
 import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
 import com.example.healthapp.graphs.Graph
-import com.example.healthapp.screens.content.home.getValidationMessage
+import com.example.healthapp.screens.content.home.profilePage.getValidationMessage
 import com.example.healthapp.ui.theme.customTextFieldColors
 import com.example.healthapp.utils.calculateBMI
 import com.google.firebase.auth.FirebaseAuth

@@ -11,21 +11,22 @@ import androidx.navigation.compose.composable
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.schedule.WorkoutScheduleRepository
 import com.example.healthapp.database.steps.daily.StepsDailyRepository
 import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.screens.mainscreens.BottomBarScreen
 import com.example.healthapp.database.users.UserViewModel
-import com.example.healthapp.screens.content.home.HomeContent
-import com.example.healthapp.screens.content.home.ProfileContent
-import com.example.healthapp.screens.content.home.ProfileSettingsContent
+import com.example.healthapp.screens.content.home.mainPage.HomeContent
+import com.example.healthapp.screens.content.home.profilePage.ProfileContent
+import com.example.healthapp.screens.content.home.profilePage.ProfileSettingsContent
 import com.example.healthapp.screens.content.home.ScreenContent
-import com.example.healthapp.screens.content.home.WorkoutsContent
+import com.example.healthapp.screens.content.home.workoutPage.WorkoutsContent
 import com.example.healthapp.screens.content.home.mainPage.StepsContent
 import com.example.healthapp.screens.mainscreens.AuthScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository) {
+fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository, workoutScheduleRepository: WorkoutScheduleRepository) {
     NavHost(
         navController = navController,
         route = Graph.HOME,
@@ -41,7 +42,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             )
         }
         composable(route = BottomBarScreen.Workout.route) {
-            WorkoutsContent()
+            WorkoutsContent(workoutScheduleRepository = workoutScheduleRepository)
         }
         composable(route = BottomBarScreen.Profile.route) {
 
@@ -62,7 +63,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             SettingsContent(navController = navController)
         }
         composable(route = Graph.AUTHENTICATION) {
-            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN", bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository)
+            AuthScreen(userViewModel = userViewModel, startDestination = "LOGIN", bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository)
         }
     }
 }

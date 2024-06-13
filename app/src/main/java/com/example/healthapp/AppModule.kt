@@ -13,6 +13,9 @@ import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmDao
 import com.example.healthapp.database.bpm.last.BpmDatabase
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.schedule.WorkoutScheduleDao
+import com.example.healthapp.database.schedule.WorkoutScheduleDatabase
+import com.example.healthapp.database.schedule.WorkoutScheduleRepository
 import com.example.healthapp.database.steps.daily.StepsDailyDao
 import com.example.healthapp.database.steps.daily.StepsDailyDatabase
 import com.example.healthapp.database.steps.daily.StepsDailyRepository
@@ -140,6 +143,28 @@ object AppModule {
             appContext,
             BpmDailyDatabase::class.java,
             "bpm_daily_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideWorkoutScheduleDao(database: WorkoutScheduleDatabase): WorkoutScheduleDao {
+        return database.workoutScheduleDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideWorkoutScheduleRepository(workoutScheduleDao: WorkoutScheduleDao): WorkoutScheduleRepository {
+        return WorkoutScheduleRepository(workoutScheduleDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWorkoutScheduleDatabase(@ApplicationContext appContext: Context): WorkoutScheduleDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            WorkoutScheduleDatabase::class.java,
+            "workout_schedule_database"
         ).build()
     }
 

@@ -10,6 +10,7 @@ import androidx.navigation.navigation
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.database.bpm.last.BpmRepository
+import com.example.healthapp.database.schedule.WorkoutScheduleRepository
 import com.example.healthapp.database.steps.daily.StepsDailyRepository
 import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.screens.mainscreens.BottomBarScreen
@@ -29,7 +30,8 @@ fun RootNavigationGraph(
     bpmHourlyRepository: BpmHourlyRepository,
     stepsDailyRepository: StepsDailyRepository,
     stepsHourlyRepository: StepsHourlyRepository,
-    bpmRepository: BpmRepository
+    bpmRepository: BpmRepository,
+    workoutScheduleRepository: WorkoutScheduleRepository
 ) {
     NavHost(
         navController = navController,
@@ -38,14 +40,14 @@ fun RootNavigationGraph(
         // Authentication graph
         navigation(route = Graph.AUTHENTICATION, startDestination = startDestinationPage) {
             composable(route = startDestinationPage ) {
-                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository)
+                AuthScreen(userViewModel = userViewModel, startDestination = startDestinationPage, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository)
             }
 
         }
         // Home graph
         navigation(route = Graph.HOME, startDestination = BottomBarScreen.Home.route) {
             composable(route = BottomBarScreen.Home.route) {
-                HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository)
+                HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository)
             }
         }
         navigation(route = Graph.WELCOME, startDestination = "WELCOME") {

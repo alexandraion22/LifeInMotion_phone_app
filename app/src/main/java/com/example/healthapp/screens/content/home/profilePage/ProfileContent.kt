@@ -1,4 +1,4 @@
-package com.example.healthapp.screens.content.home
+package com.example.healthapp.screens.content.home.profilePage
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*

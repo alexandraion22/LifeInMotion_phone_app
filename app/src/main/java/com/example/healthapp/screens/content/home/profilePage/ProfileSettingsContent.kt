@@ -1,4 +1,4 @@
-package com.example.healthapp.screens.content.home
+package com.example.healthapp.screens.content.home.profilePage
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.border
