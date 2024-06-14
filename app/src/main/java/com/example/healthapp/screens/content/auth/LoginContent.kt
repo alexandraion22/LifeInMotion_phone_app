@@ -72,13 +72,13 @@ fun LoginContent(navController: NavHostController, userViewModel: UserViewModel)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val currentUser = FirebaseAuth.getInstance().currentUser
-                        if(currentUser?.uid == (user?.uid ?: "")) {
-                            navController.navigate(Graph.HOME) {
-                                popUpTo(navController.graph.id) { inclusive = true }
-                            }
+                    if(currentUser?.uid == (user?.uid ?: "")) {
+                        navController.navigate(Graph.HOME) {
+                            popUpTo(navController.graph.id) { inclusive = true }
                         }
-                        else
-                            navController.navigate("SIGNUP/DETAILS")
+                    }
+                    else
+                        navController.navigate("SIGNUP/DETAILS")
                 } else {
                     errorMessage = task.exception?.message
                     coroutineScope.launch {

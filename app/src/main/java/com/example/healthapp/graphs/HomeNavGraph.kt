@@ -60,7 +60,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
         }
 
         composable(route = BottomBarScreen.SetGoals.route) {
-            SetGoalsContent(goalsRepository = goalsRepository)
+            SetGoalsContent(goalsRepository = goalsRepository, navController = navController)
         }
 
         composable(route = BottomBarScreen.ProfileSettings.route) {
