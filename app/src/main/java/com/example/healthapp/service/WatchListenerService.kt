@@ -123,7 +123,7 @@ class WatchListenerService: WearableListenerService() {
         if (calories == 0)
             return
 
-        updateActiveTimeAndCalories(duration,calories,timestamp)
+        updateActiveTimeAndCalories(duration,calories)
         CoroutineScope(Dispatchers.IO).launch {
             workoutRepository.insert(
                 Workout(
@@ -145,19 +145,16 @@ class WatchListenerService: WearableListenerService() {
     }
 
     @SuppressLint("NewApi")
-    fun Long.toLocalDateTime(): LocalDateTime {
-        return LocalDateTime.ofEpochSecond(this / 1000, 0, ZoneOffset.UTC)
-    }
-
-    @SuppressLint("NewApi")
-    private fun updateActiveTimeAndCalories(duration: Long, calories: Int, timeStamp: LocalDateTime) {
+    private fun updateActiveTimeAndCalories(duration: Long, calories: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            val beginingMilis= timeStamp.toEpochMillis() - duration
-            val startOfDay = beginingMilis.toLocalDateTime().withHour(0).withMinute(0).withSecond(0).withNano(0)
-            activityDailyRepository.deleteAll()
-            activityDailyRepository.insert(ActivityDaily(timestamp = startOfDay.toEpochMillis(), activeTime = (duration/60000).toInt()))
-            caloriesDailyRepository.deleteAll()
-            caloriesDailyRepository.insert(CaloriesDaily(timestamp = startOfDay.toEpochMillis(), totalCalories = calories))
+            val startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)
+            Log.e("TAG",startOfDay.toString())
+            val activityDaily = activityDailyRepository.getEntryForDay(startOfDay.toEpochMillis())
+            val caloriesDaily = caloriesDailyRepository.getEntryForDay(startOfDay.toEpochMillis())
+            val activeBefore = activityDaily?.activeTime?: 0
+            val caloriesBefore = caloriesDaily?.totalCalories?: 0
+            activityDailyRepository.update(ActivityDaily(timestamp = startOfDay.toEpochMillis(), activeTime = ((duration/60000).toInt()+ activeBefore)))
+            caloriesDailyRepository.update(CaloriesDaily(timestamp = startOfDay.toEpochMillis(), totalCalories = calories + caloriesBefore))
         }
     }
 

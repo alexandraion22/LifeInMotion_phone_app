@@ -366,7 +366,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             )
                             Text(
                                 modifier = Modifier.padding(bottom = 4.dp),
-                                text = "${stepsToday?.steps}/${goals?.stepsGoal}",
+                                text = "${stepsTodayNr}/${goals?.stepsGoal}",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )

@@ -21,6 +21,11 @@ sealed class BottomBarScreen(
         icon = R.drawable.ic_navbar_workout
     )
 
+    object WorkoutList: BottomBarScreen(
+        route = "WORKOUT/LIST",
+        icon = R.drawable.ic_navbar_workout
+    )
+
     object Profile: BottomBarScreen(
         route = "PROFILE",
         icon = R.drawable.ic_navbar_person

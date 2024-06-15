@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.healthapp.R
 import com.example.healthapp.database.schedule.WorkoutSchedule
@@ -45,7 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository) {
+fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navController: NavController) {
     var isWorkoutScheduleExpanded by remember { mutableStateOf(true) }
     val textSize = 16.sp
 
@@ -79,6 +80,7 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository) {
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(24.dp))
                         .background(PsychedelicPurple)
+                        .clickable { navController.navigate("WORKOUT/LIST") }
                         .padding(16.dp),
                 ) {
                     Column(

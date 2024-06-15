@@ -15,6 +15,7 @@ import com.example.healthapp.database.schedule.WorkoutScheduleRepository
 import com.example.healthapp.database.steps.daily.StepsDailyRepository
 import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.database.users.UserViewModel
+import com.example.healthapp.database.workouts.WorkoutRepository
 import com.example.healthapp.graphs.AuthNavGraph
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -31,7 +32,8 @@ fun AuthScreen(
     workoutScheduleRepository: WorkoutScheduleRepository,
     caloriesDailyRepository: CaloriesDailyRepository,
     activityDailyRepository: ActivityDailyRepository,
-    goalsRepository: GoalsRepository
+    goalsRepository: GoalsRepository,
+    workoutRepository: WorkoutRepository
 ) {
-    AuthNavGraph(navController = navController, userViewModel = userViewModel, startDestination = startDestination, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository)
+    AuthNavGraph(navController = navController, userViewModel = userViewModel, startDestination = startDestination, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository, workoutRepository = workoutRepository)
 }
