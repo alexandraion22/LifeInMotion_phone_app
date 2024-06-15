@@ -2,34 +2,35 @@ package com.example.healthapp.database.calories
 
 import javax.inject.Inject
 
-class CaloriesDailyRepository @Inject constructor(private val bpmDailyDao: CaloriesDailyDao) {
+class CaloriesDailyRepository @Inject constructor(private val caloriesDailyDao: CaloriesDailyDao) {
     suspend fun insert(bpmDaily: CaloriesDaily) {
-        bpmDailyDao.insert(bpmDaily)
+        caloriesDailyDao.insert(bpmDaily)
     }
 
     suspend fun deleteAll() {
-        bpmDailyDao.deleteAll()
+        caloriesDailyDao.deleteAll()
     }
 
 
     suspend fun getEntryForDay(startOfDay: Long): CaloriesDaily? {
-        return bpmDailyDao.getEntryForDay(startOfDay)
+        return caloriesDailyDao.getEntryForDay(startOfDay)
     }
 
     suspend fun getAllPast7days(startOfWeek: Long, startOfNextWeek: Long): List<CaloriesDaily> {
-        return bpmDailyDao.getAllPast7days(startOfWeek,startOfNextWeek)
+        return caloriesDailyDao.getAllPast7days(startOfWeek,startOfNextWeek)
     }
 
     suspend fun getAllPast31days(startOfMonth: Long, startOfNextMonth: Long): List<CaloriesDaily> {
-        return bpmDailyDao.getAllPast31days(startOfMonth, startOfNextMonth)
+        return caloriesDailyDao.getAllPast31days(startOfMonth, startOfNextMonth)
     }
 
     suspend fun deleteEntryForDay(startOfDay: Long) {
-        bpmDailyDao.deleteEntryForDay(startOfDay)
+        caloriesDailyDao.deleteEntryForDay(startOfDay)
     }
 
     suspend fun update(updatedEntry: CaloriesDaily) {
-        bpmDailyDao.deleteEntryForDay(updatedEntry.timestamp)
-        bpmDailyDao.insert(updatedEntry)
+        if(caloriesDailyDao.getEntryForDay(updatedEntry.timestamp)!=null)
+            caloriesDailyDao.deleteEntryForDay(updatedEntry.timestamp)
+        caloriesDailyDao.insert(updatedEntry)
     }
 }

@@ -29,7 +29,8 @@ class ActivityDailyRepository @Inject constructor(private val activityDailyDao: 
     }
 
     suspend fun update(updatedEntry: ActivityDaily) {
-        activityDailyDao.deleteEntryForDay(updatedEntry.timestamp)
+        if(activityDailyDao.getEntryForDay(updatedEntry.timestamp)!=null)
+            activityDailyDao.deleteEntryForDay(updatedEntry.timestamp)
         activityDailyDao.insert(updatedEntry)
     }
 }

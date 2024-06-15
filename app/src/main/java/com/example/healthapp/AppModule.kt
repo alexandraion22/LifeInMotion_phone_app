@@ -25,12 +25,18 @@ import com.example.healthapp.database.goals.GoalsRepository
 import com.example.healthapp.database.schedule.WorkoutScheduleDao
 import com.example.healthapp.database.schedule.WorkoutScheduleDatabase
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
+import com.example.healthapp.database.state.StateDao
+import com.example.healthapp.database.state.StateDatabase
+import com.example.healthapp.database.state.StateRepository
 import com.example.healthapp.database.steps.daily.StepsDailyDao
 import com.example.healthapp.database.steps.daily.StepsDailyDatabase
 import com.example.healthapp.database.steps.daily.StepsDailyRepository
 import com.example.healthapp.database.steps.hourly.StepsHourlyDao
 import com.example.healthapp.database.steps.hourly.StepsHourlyDatabase
 import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
+import com.example.healthapp.database.workouts.WorkoutDao
+import com.example.healthapp.database.workouts.WorkoutDatabase
+import com.example.healthapp.database.workouts.WorkoutRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -240,6 +246,50 @@ object AppModule {
             appContext,
             GoalsDatabase::class.java,
             "goals_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideWorkoutDao(database: WorkoutDatabase): WorkoutDao {
+        return database.workoutDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideWorkoutRepository(workoutDao: WorkoutDao): WorkoutRepository {
+        return WorkoutRepository(workoutDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWorkoutDatabase(@ApplicationContext appContext: Context): WorkoutDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            WorkoutDatabase::class.java,
+            "workout_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStateDao(database: StateDatabase): StateDao {
+        return database.stateDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStateRepository(stateDao: StateDao): StateRepository {
+        return StateRepository(stateDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideStateDatabase(@ApplicationContext appContext: Context): StateDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            StateDatabase::class.java,
+            "state_current_database"
         ).build()
     }
 }

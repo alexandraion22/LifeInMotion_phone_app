@@ -66,12 +66,12 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
     var user by remember { mutableStateOf<User?>(null) }
     val currentTime = LocalDateTime.now()
     val startOfDay = currentTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
-    var stepsTodayK by remember { mutableDoubleStateOf(0.0) }
+    var stepsTodayK by remember { mutableStateOf("0") }
     var bpmLast by remember { mutableStateOf<Bpm?>(null) }
     var caloriesToday by remember { mutableIntStateOf(0) }
-    var activityToday by remember { mutableStateOf(0) }
+    var activityToday by remember { mutableIntStateOf(0) }
     var goals by remember { mutableStateOf<Goals?>(null) }
-    var stepsTodayNr by remember { mutableStateOf(0) }
+    var stepsTodayNr by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) {
         scope.launch {
             user = userViewModel.getUser()
@@ -81,7 +81,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
             stepsDailyRepository.getEntryForDay(startOfDay)
         }
         stepsTodayNr = stepsToday?.steps ?: 0
-        stepsTodayK = String.format("%.1f", floor((stepsToday?.steps ?: 0) / 1000.0)).toDouble()
+        stepsTodayK = String.format("%.1f",stepsTodayNr / 1000.0)
         bpmLast = withContext(Dispatchers.IO) {
             bpmRepository.getFirst()
         }
@@ -183,7 +183,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = if ((stepsToday?.steps ?: 0) < 1000) stepsToday?.steps.toString() else "${stepsTodayK}K",
+                                    text = if (stepsTodayNr < 1000) stepsTodayNr.toString() else "${stepsTodayK}K",
                                     fontSize = 28.sp, // Adjusted font size for the number
                                     fontWeight = FontWeight.Bold,
                                     color = colors.onPrimary
