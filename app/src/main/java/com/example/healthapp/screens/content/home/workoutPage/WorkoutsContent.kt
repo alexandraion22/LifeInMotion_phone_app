@@ -3,8 +3,10 @@ package com.example.healthapp.screens.content.home.workoutPage
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.widget.Space
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -38,23 +40,43 @@ import coil.compose.rememberImagePainter
 import com.example.healthapp.R
 import com.example.healthapp.database.schedule.WorkoutSchedule
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
+import com.example.healthapp.database.workouts.Workout
+import com.example.healthapp.database.workouts.WorkoutRepository
+import com.example.healthapp.service.toEpochMillis
 import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.PsychedelicPurple
 import com.example.healthapp.ui.theme.VeryLightGray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
+import kotlin.math.floor
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navController: NavController) {
+fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navController: NavController, workoutRepository: WorkoutRepository) {
     var isWorkoutScheduleExpanded by remember { mutableStateOf(true) }
     val textSize = 16.sp
 
     var dayIndex by remember { mutableIntStateOf(0) }
     val workoutSchedules = remember { List(8) { mutableStateOf<Set<String>>(emptySet()) } }
+    var workoutsDoneSet by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var workoutsDone by remember { mutableStateOf<List<Workout>>(emptyList()) }
+
+    var workoutDurationTotal by remember { mutableIntStateOf(0) }
+    var workoutCaloriesTotal by remember { mutableIntStateOf(0) }
+    var currentTime by remember { mutableStateOf(LocalDateTime.now()) }
+    val startOfDay = currentTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
+    val startOfNextDay = currentTime.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
 
     if (dayIndex == 0) {
         LaunchedEffect(Unit) {
+            workoutsDone = withContext(Dispatchers.IO) {
+                workoutRepository.getEntriesForDay(startOfDay, startOfNextDay)
+            }
+            workoutsDoneSet = workoutsDone.map { it.type }.toSet()
+            workoutDurationTotal = ((workoutsDone.sumOf { it.duration })/60000).toInt()
+            workoutCaloriesTotal = workoutsDone.sumOf { it.calories }
             for (day in 1..7) {
                     workoutSchedules[day].value = withContext(Dispatchers.IO) {
                         workoutScheduleRepository.getListForDay(day)?.workouts ?: emptySet()
@@ -101,8 +123,7 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navCon
                             )
                             Spacer(modifier = Modifier.weight(1f)) // Add space between columns
                             Text(
-                                "2h 12min",
-                                color = Color.White,
+                                text = formatWorkoutDuration(workoutDurationTotal),                                color = Color.White,
                                 fontSize = textSize
                             )
                         }
@@ -115,7 +136,7 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navCon
                             Spacer(modifier = Modifier.weight(1f)) // Add space between columns
 
                             Text(
-                                "437kcal",
+                                workoutCaloriesTotal.toString() + "kcal",
                                 color = Color.White,
                                 fontSize = textSize
                             )
@@ -123,23 +144,31 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navCon
                         Row(
                             verticalAlignment = Alignment.Top
                         ) {
-                            Text(
-                                "Workout types",
-                                color = Color.White,
-                                fontSize = textSize
-                            )
-                            Spacer(modifier = Modifier.weight(1f)) // Add space between columns
-                            Column(horizontalAlignment = Alignment.End) {
+                            if(workoutsDone.isNotEmpty()) {
                                 Text(
-                                    "Pilates",
+                                    "Workout types",
                                     color = Color.White,
                                     fontSize = textSize
                                 )
-                                Text(
-                                    "Circuit training",
-                                    color = Color.White,
-                                    fontSize = textSize
-                                )
+                                Spacer(modifier = Modifier.weight(1f)) // Add space between columns
+                                Column(horizontalAlignment = Alignment.End) {
+                                    val workoutTypeDisplayName = mapOf(
+                                        "circuit_training" to "Circuit Training",
+                                        "aerobic" to "Aerobic",
+                                        "pilates" to "Pilates",
+                                        "weights" to "Weight Lifting",
+                                        "walk" to "Walking",
+                                        "run" to "Running"
+                                    )
+                                    workoutsDoneSet.forEach { workoutType ->
+                                        Text(
+                                            text = workoutTypeDisplayName[workoutType]
+                                                ?: workoutType, // Default to workoutType if no mapping is found
+                                            color = Color.White,
+                                            fontSize = textSize
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -374,6 +403,18 @@ fun DayItem(day: String, isExpanded: Boolean, workoutScheduleRepository: Workout
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun formatWorkoutDuration(durationInMinutes: Int): String {
+    return when {
+        durationInMinutes < 60 -> "${durationInMinutes}min"
+        else -> {
+            val hours = floor(durationInMinutes.toDouble() / 60).toInt()
+            val minutes = durationInMinutes % 60
+            "${hours}h ${minutes}min"
         }
     }
 }

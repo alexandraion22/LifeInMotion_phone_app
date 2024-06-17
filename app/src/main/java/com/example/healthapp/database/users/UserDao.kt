@@ -11,7 +11,7 @@ interface UserDao {
     suspend fun insert(user: User)
 
     @Query("SELECT * FROM user_table ORDER BY id DESC LIMIT 1")
-    suspend fun getUser(): User?
+    suspend fun getUser(): User
 
     @Query("DELETE FROM user_table")
     suspend fun deleteAll()

@@ -27,6 +27,10 @@ class StateRepository @Inject constructor(private val stateDao: StateDao) {
         stateDao.updateIsWorkingOutBpm(id,isWorkingOutBpm)
     }
 
+    suspend fun updateIsWalking(id: Int, isWalking: Boolean){
+        stateDao.updateIsWalking(id,isWalking)
+    }
+
     suspend fun updateStepsLast8Minutes(id: Int, stepsLast8Minutes: Int){
         stateDao.updateStepsLast8Minutes(id,stepsLast8Minutes)
     }
@@ -41,5 +45,30 @@ class StateRepository @Inject constructor(private val stateDao: StateDao) {
 
     suspend fun updateTimestampLastSteps(id: Int, timestampLastSteps: Long){
         stateDao.updateTimestampLastSteps(id,timestampLastSteps)
+    }
+
+    suspend fun updateTimestampStartedWorkout(id: Int, timestampStartedWorkout: Long){
+        stateDao.updateTimestampStartedWorkout(id, timestampStartedWorkout)
+    }
+
+    suspend fun updateSleepCycle(id: Int, sleepCycle: Int){
+        stateDao.updateSleepCycle(id,sleepCycle)
+    }
+
+    suspend fun updateSleepStage(id: Int, sleepStage: Int){
+        stateDao.updateSleepStage(id, sleepStage)
+    }
+
+    suspend fun updateTimeLightSleep(id: Int, timeLightSleep: Int){
+        stateDao.updateTimeLightSleep(id,timeLightSleep)
+    }
+
+    suspend fun updateTimeDeepSleep(id: Int, timeDeepSleep: Int){
+        stateDao.updateTimeDeepSleep(id, timeDeepSleep)
+    }
+
+    suspend fun updateTimeREM(id: Int, timeREM: Int){
+        stateDao.updateTimeREM(id,timeREM)
+
     }
 }

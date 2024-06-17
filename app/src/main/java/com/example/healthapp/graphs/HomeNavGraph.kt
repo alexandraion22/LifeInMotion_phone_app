@@ -50,7 +50,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
         }
 
         composable(route = BottomBarScreen.Workout.route) {
-            WorkoutsContent(workoutScheduleRepository = workoutScheduleRepository, navController = navController)
+            WorkoutsContent(workoutScheduleRepository = workoutScheduleRepository, navController = navController, workoutRepository = workoutRepository)
         }
 
         composable(route = BottomBarScreen.WorkoutList.route) {

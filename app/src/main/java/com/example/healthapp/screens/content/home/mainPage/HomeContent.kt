@@ -55,7 +55,13 @@ import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.LightPurple
 import com.example.healthapp.ui.theme.PsychedelicPurple
 import com.example.healthapp.ui.theme.VeryLightGray
-import kotlin.math.floor
+import com.google.firebase.ml.modeldownloader.CustomModel
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
+import com.google.firebase.ml.modeldownloader.DownloadType
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
+import org.tensorflow.lite.Interpreter
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -73,6 +79,38 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
     var goals by remember { mutableStateOf<Goals?>(null) }
     var stepsTodayNr by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) {
+//        val conditions = CustomModelDownloadConditions.Builder()
+//            .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
+//            .build()
+//        FirebaseModelDownloader.getInstance()
+//            .getModel("workout-classifier", DownloadType.LATEST_MODEL,
+//                conditions)
+//            .addOnSuccessListener { model: CustomModel? ->
+//                val modelFile = model?.file
+//                if (modelFile != null) {
+//                    Log.e("HERE1",modelFile.path)
+//                }
+//                Log.e("HERE2",modelFile.toString())
+//                if (modelFile != null) {
+//                    val interpreter = Interpreter(modelFile)
+//                    val inputData = floatArrayOf(88f/198f,59f/198f,114f/198f,4.7196f)
+//                    // Convert the input data to ByteBuffer
+//                    val inputBuffer = ByteBuffer.allocateDirect(4 * inputData.size)
+//                    inputBuffer.order(ByteOrder.nativeOrder())
+//                    inputBuffer.asFloatBuffer().put(inputData)
+//                    val bufferSize = 4 * java.lang.Float.SIZE / java.lang.Byte.SIZE
+//                    val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
+//                    interpreter.run(inputBuffer, modelOutput)
+//                    modelOutput.rewind()
+//                    val outputShape = intArrayOf(1, 4)
+//                    val outputData = FloatArray(outputShape[1])
+//                    modelOutput.asFloatBuffer().get(outputData)
+//                    outputData.forEach { Log.e("HERE",it.toString()) }
+//                }
+//            }
+//            .addOnFailureListener {exception ->
+//                Log.e("ModelDownload", "Failed to download model", exception)
+//            }
         scope.launch {
             user = userViewModel.getUser()
             fullName = user?.fullName ?: "User"
@@ -94,7 +132,6 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
         goals = withContext(Dispatchers.IO) {
             goalsRepository.getFirst()
         }
-        Log.e("HERE",goals.toString())
     }
 
     Box(

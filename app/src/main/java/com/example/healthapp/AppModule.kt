@@ -5,11 +5,9 @@ import androidx.room.Room
 import com.example.healthapp.database.activity.ActivityDailyDao
 import com.example.healthapp.database.activity.ActivityDailyDatabase
 import com.example.healthapp.database.activity.ActivityDailyRepository
-import com.example.healthapp.database.bpm.daily.BpmDaily
 import com.example.healthapp.database.bpm.daily.BpmDailyDao
 import com.example.healthapp.database.bpm.daily.BpmDailyDatabase
 import com.example.healthapp.database.bpm.daily.BpmDailyRepository
-import com.example.healthapp.database.bpm.hourly.BpmHourly
 import com.example.healthapp.database.bpm.hourly.BpmHourlyDao
 import com.example.healthapp.database.bpm.hourly.BpmHourlyDatabase
 import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
@@ -289,7 +287,7 @@ object AppModule {
         return Room.databaseBuilder(
             appContext,
             StateDatabase::class.java,
-            "state_current_database"
+            "user_state_database"
         ).build()
     }
 }

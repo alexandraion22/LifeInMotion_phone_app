@@ -5,7 +5,7 @@ class UserRepository(private val userDao: UserDao) {
         userDao.insert(user)
     }
 
-    suspend fun getUser(): User? {
+    suspend fun getUser(): User {
         return userDao.getUser()
     }
 
