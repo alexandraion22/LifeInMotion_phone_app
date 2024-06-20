@@ -228,8 +228,12 @@ fun CustomTextField(
     imeAction: ImeAction,
     keyboardActions: KeyboardActions,
     keyboardType: KeyboardType = KeyboardType.Text,
-    textFieldColors: TextFieldColors,
-    focusRequester: FocusRequester = FocusRequester()
+    textFieldColors: TextFieldColors = TextFieldDefaults.textFieldColors(
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent
+    ),
+    focusRequester: FocusRequester = FocusRequester(),
+    enabled: Boolean =  true
 ) {
     TextField(
         value = value,
@@ -246,7 +250,8 @@ fun CustomTextField(
         ),
         keyboardActions = keyboardActions,
         shape = RoundedCornerShape(16.dp),
-        colors = textFieldColors
+        colors = textFieldColors,
+        enabled = enabled
     )
 }
 

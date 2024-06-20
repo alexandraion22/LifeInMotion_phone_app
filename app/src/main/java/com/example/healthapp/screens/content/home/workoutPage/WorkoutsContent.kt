@@ -82,6 +82,7 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navCon
                         workoutScheduleRepository.getListForDay(day)?.workouts ?: emptySet()
                 }
             }
+            Log.e("TAG",workoutsDone.toString())
         }
         Box(
             modifier = Modifier.fillMaxHeight(0.94f).background(color = VeryLightGray)

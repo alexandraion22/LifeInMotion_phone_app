@@ -287,7 +287,7 @@ object AppModule {
         return Room.databaseBuilder(
             appContext,
             StateDatabase::class.java,
-            "user_state_database"
+            "current_userstate_database"
         ).build()
     }
 }

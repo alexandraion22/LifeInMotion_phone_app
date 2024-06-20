@@ -11,7 +11,7 @@ class StateRepository @Inject constructor(private val stateDao: StateDao) {
         stateDao.deleteAll()
     }
 
-    suspend fun getFirst(): State? {
+    suspend fun getFirst(): State {
         return stateDao.getFirst()
     }
 
@@ -69,6 +69,13 @@ class StateRepository @Inject constructor(private val stateDao: StateDao) {
 
     suspend fun updateTimeREM(id: Int, timeREM: Int){
         stateDao.updateTimeREM(id,timeREM)
+    }
 
+    suspend fun updateMaxBpmWorkout(id: Int, maxBpmWorkout: Int){
+        stateDao.updateMaxBpmWorkout(id, maxBpmWorkout)
+    }
+
+    suspend fun updateMinBpmWorkout(id: Int, minBpmWorkout: Int){
+        stateDao.updateMinBpmWorkout(id, minBpmWorkout)
     }
 }

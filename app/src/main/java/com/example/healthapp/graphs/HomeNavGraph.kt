@@ -27,6 +27,7 @@ import com.example.healthapp.screens.content.home.profilePage.ProfileSettingsCon
 import com.example.healthapp.screens.content.home.ScreenContent
 import com.example.healthapp.screens.content.home.workoutPage.WorkoutsContent
 import com.example.healthapp.screens.content.home.mainPage.StepsContent
+import com.example.healthapp.screens.content.home.workoutPage.AddWorkoutContent
 import com.example.healthapp.screens.content.home.workoutPage.ListWorkoutsContent
 import com.example.healthapp.screens.mainscreens.AuthScreen
 

@@ -20,5 +20,7 @@ data class State(
     val stepsLast4Minutes: Int,
     val isWalking: Boolean,
     val timestampLastSteps: Long,
-    val timestampStartWorkout: Long
+    val timestampStartWorkout: Long,
+    val maxBpmWorkout: Int,
+    val minBpmWorkout: Int
 )

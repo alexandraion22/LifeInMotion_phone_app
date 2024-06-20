@@ -17,7 +17,7 @@ abstract class StateDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     StateDatabase::class.java,
-                    "user_state_database"
+                    "current_userstate_database"
                 ).build()
                 INSTANCE = instance
                 instance

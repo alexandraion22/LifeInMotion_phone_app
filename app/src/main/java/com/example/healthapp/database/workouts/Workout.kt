@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "workouts_table")
 data class Workout(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val timestamp: Long,
+    val timestamp: Long, // if timestamp is 0 - then it was added manually on the phone
     val duration: Long,
     val type: String,
     val calories: Int,

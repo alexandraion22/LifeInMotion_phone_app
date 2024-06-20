@@ -35,5 +35,5 @@ fun customTextFieldColors() = TextFieldDefaults.textFieldColors(
     textColor = CoolGray,
     focusedLabelColor = CoolGray,
     unfocusedLabelColor = CoolGray,
-    cursorColor = CoolGray
+    cursorColor = CoolGray,
 )

@@ -1,5 +1,6 @@
 import android.graphics.Typeface
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -8,9 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +39,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,8 +50,10 @@ import com.example.healthapp.database.bpm.hourly.BpmHourlyRepository
 import com.example.healthapp.service.toEpochMillis
 import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.PsychedelicPurple
+import com.example.healthapp.ui.theme.VeryLightGray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.internal.wait
 import java.lang.Integer.max
 import java.time.Instant
 import java.time.LocalDateTime
@@ -85,14 +91,14 @@ fun BpmContent(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(VeryLightGray),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(24.dp))
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 24.dp, top = 2.dp, bottom = 8.dp),
-            contentAlignment = Alignment.CenterStart
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Heart Rate",
@@ -101,11 +107,14 @@ fun BpmContent(
                 color = colors.onPrimary
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.88f)
+                .fillMaxHeight(0.85f)
+                .clip(RoundedCornerShape(24.dp))
                 .border(1.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                .background(Color.White)
                 .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -163,7 +172,6 @@ fun BpmContent(
                     }
                 }
             }
-
             Box(
                 modifier = Modifier.fillMaxWidth(0.95f)
             ) {
@@ -180,6 +188,12 @@ fun BpmContent(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
+
+    if (bpmList.isEmpty()) {
+        Column {}
+        return
+    }
+
     val currentTime = LocalDateTime.now()
     val startOfDay = currentTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
     val hourlyData = (0..23).associateWith { bpmList.find { bpm -> (bpm.timestamp - startOfDay).toInt() == it * 3600000 } }
@@ -187,16 +201,26 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
     val minBpm = bpmList.minOfOrNull { it.minBpm } ?: 0
     val maxBpm = bpmList.maxOfOrNull { it.maxBpm } ?: 240
 
-    val range = max(maxBpm - minBpm,1)
-    val factor = 1000 / (range + 40).toFloat() // Adjust factor based on range
-    val levels = (40..240 step 40).filter { it in minBpm - 39..maxBpm + 39 }
+    val start = 1000
+    val levels = (0..240 step 40).filter { it in minBpm - 40..maxBpm + 40 }
 
+    val minRange = levels[0]
+    val maxRange = levels[levels.size-1]
+
+    val factor = start / (1.1f *(maxRange-minRange)) // Adjust factor based on range
     Column {
         Text(text = "$minBpm-$maxBpm bpm",
             modifier = Modifier.padding(top = 16.dp, start = 8.dp),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = colorOnPrimary)
+        Text(
+            text = "interval",
+            modifier = Modifier.padding(top = 4.dp, start = 8.dp),
+            fontSize = 18.sp,
+            fontStyle = FontStyle.Italic,
+            color = colorOnPrimary
+        )
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -204,7 +228,6 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
         ) {
             val barWidth = 20F
             val barSpacing = 35F
-            val start = 1500
 
             // Draw horizontal dotted lines
             val paint = Paint().asFrameworkPaint().apply {
@@ -214,7 +237,7 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
             }
 
             levels.forEach { bpmLevel ->
-                val yPos = start - bpmLevel * factor
+                val yPos = start - (bpmLevel - minRange) * factor
                 drawIntoCanvas {
                     it.nativeCanvas.drawLine(
                         0f,
@@ -224,13 +247,25 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
                         paint
                     )
                 }
+                drawIntoCanvas {
+                    it.nativeCanvas.drawText(
+                        bpmLevel.toString(),
+                        barSpacing * 24.5f,
+                        yPos,
+                        Paint().asFrameworkPaint().apply {
+                            color = colorOnPrimary.toArgb()
+                            textSize = 36f // Adjust text size as needed
+                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
+                        }
+                    )
+                }
             }
 
             // Draw bars and legend
             hourlyData.forEach { (hour, bpm) ->
                 bpm?.let {
-                    val barUp = it.maxBpm.toFloat() * factor
-                    val barHeight = (max((it.maxBpm.toFloat() - it.minBpm.toFloat()).toInt(),1)) * factor
+                    val barUp = (it.maxBpm.toFloat()-minRange) * factor
+                    val barHeight = (it.maxBpm.toFloat() - it.minBpm.toFloat()) * factor
                     drawRoundRect(
                         color = PsychedelicPurple,
                         topLeft = Offset(barSpacing * hour, start - barUp),
@@ -245,7 +280,7 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
                         it.nativeCanvas.drawText(
                             if (hour == 23) "(h)" else "$hour",
                             barSpacing * hour,
-                            (start - 175).toFloat(), // Position below the bars
+                            (start + 125).toFloat(), // Position below the bars
                             Paint().asFrameworkPaint().apply {
                                 color = colorOnPrimary.toArgb()
                                 textSize = 36f // Adjust text size as needed
@@ -255,24 +290,6 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
                         )
                     }
             }
-
-            // Draw Y-axis labels
-            levels.forEach { i ->
-                val yPos = start - i * factor - 2
-
-                drawIntoCanvas {
-                    it.nativeCanvas.drawText(
-                        i.toString(),
-                        barSpacing * 24.5f,
-                        yPos,
-                        Paint().asFrameworkPaint().apply {
-                            color = colorOnPrimary.toArgb()
-                            textSize = 36f // Adjust text size as needed
-                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
-                        }
-                    )
-                }
-            }
         }
     }
 }
@@ -280,6 +297,12 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
+
+    if (bpmList.isEmpty()) {
+        Column {}
+        return
+    }
+
     val currentTime = LocalDateTime.now()
     val pastWeekDates = (0..6).map { currentTime.minusDays(it.toLong()).toLocalDate() }.reversed()
     val dailyData = pastWeekDates.associateWith { date ->
@@ -289,11 +312,13 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
     val minBpm = bpmList.minOfOrNull { it.minBpm } ?: 0
     val maxBpm = bpmList.maxOfOrNull { it.maxBpm } ?: 240
 
-    val range = max(maxBpm - minBpm,1)
-    val factor = 1000 / (range + 40).toFloat() // Adjust factor based on range
+    val start = 1000
+    val levels = (0..240 step 40).filter { it in minBpm - 40..maxBpm + 40 }
 
-    val levels = (40..240 step 40).filter { it in minBpm - 39..maxBpm + 39 }
+    val minRange = levels[0]
+    val maxRange = levels[levels.size-1]
 
+    val factor = start / (1.1f *(maxRange-minRange)) // Adjust factor based on range
     Column {
         Text(
             text = "$minBpm-$maxBpm bpm",
@@ -301,6 +326,13 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = colorOnPrimary)
+        Text(
+            text = "interval",
+            modifier = Modifier.padding(top = 4.dp, start = 8.dp),
+            fontSize = 18.sp,
+            fontStyle = FontStyle.Italic,
+            color = colorOnPrimary
+        )
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -308,7 +340,6 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
         ) {
             val barWidth = 60F
             val barSpacing = 124F
-            val start = 1500
 
             // Draw horizontal dotted lines
             val paint = Paint().asFrameworkPaint().apply {
@@ -318,7 +349,7 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
             }
 
             levels.forEach { bpmLevel ->
-                val yPos = start - bpmLevel * factor
+                val yPos = start - (bpmLevel-minRange) * factor
                 drawIntoCanvas {
                     it.nativeCanvas.drawLine(
                         0f,
@@ -328,13 +359,26 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                         paint
                     )
                 }
+
+                drawIntoCanvas {
+                    it.nativeCanvas.drawText(
+                        bpmLevel.toString(),
+                        barSpacing * 6.92f,
+                        yPos,
+                        Paint().asFrameworkPaint().apply {
+                            color = colorOnPrimary.toArgb()
+                            textSize = 36f // Adjust text size as needed
+                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
+                        }
+                    )
+                }
             }
 
             dailyData.entries.withIndex().forEach { (index, entry) ->
                 val (date, bpm) = entry
                 bpm?.let {
-                    val barUp = it.maxBpm.toFloat() * factor
-                    val barHeight = (max((it.maxBpm.toFloat() - it.minBpm.toFloat()).toInt(),1)) * factor
+                    val barUp = (it.maxBpm - minRange) * factor
+                    val barHeight = (it.maxBpm - it.minBpm) * factor
                     drawRoundRect(
                         color = PsychedelicPurple,
                         topLeft = Offset(barSpacing * index, start - barUp),
@@ -354,29 +398,11 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                     it.nativeCanvas.drawText(
                         formattedDate,
                         barSpacing * index + 28f,
-                        (start - 175).toFloat(), // Position below the bars
+                        (start + 125).toFloat(), // Position below the bars
                         Paint().asFrameworkPaint().apply {
                             color = colorOnPrimary.toArgb()
                             textSize = 36f // Adjust text size as needed
                             textAlign = android.graphics.Paint.Align.CENTER
-                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
-                        }
-                    )
-                }
-            }
-
-            // Draw Y-axis labels
-            levels.forEach { i ->
-                val yPos = start - i * factor - 2
-
-                drawIntoCanvas {
-                    it.nativeCanvas.drawText(
-                        i.toString(),
-                        barSpacing * 6.92f,
-                        yPos,
-                        Paint().asFrameworkPaint().apply {
-                            color = colorOnPrimary.toArgb()
-                            textSize = 36f // Adjust text size as needed
                             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
                         }
                     )
@@ -389,6 +415,12 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
+
+    if (bpmList.isEmpty()) {
+        Column {}
+        return
+    }
+
     val currentTime = LocalDateTime.now()
     val pastMonthDates = (0..30).map { currentTime.minusDays(it.toLong()).toLocalDate() }.reversed()
     val dailyData = pastMonthDates.associateWith { date ->
@@ -398,17 +430,26 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
     val minBpm = bpmList.minOfOrNull { it.minBpm } ?: 0
     val maxBpm = bpmList.maxOfOrNull { it.maxBpm } ?: 240
 
-    val range = max(maxBpm - minBpm,1)
-    val factor = 1000 / (range + 40).toFloat() // Adjust factor based on range
+    val start = 1000
+    val levels = (0..240 step 40).filter { it in minBpm - 40..maxBpm + 40 }
 
-    val levels = (40..240 step 40).filter { it in minBpm - 39..maxBpm + 39 }
+    val minRange = levels[0]
+    val maxRange = levels[levels.size-1]
 
+    val factor = start / (1.1f *(maxRange-minRange)) // Adjust factor based on range
     Column {
         Text(
             text = "$minBpm-$maxBpm bpm",
             modifier = Modifier.padding(top = 16.dp, start = 8.dp),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
+            color = colorOnPrimary
+        )
+        Text(
+            text = "interval",
+            modifier = Modifier.padding(top = 4.dp, start = 8.dp),
+            fontSize = 18.sp,
+            fontStyle = FontStyle.Italic,
             color = colorOnPrimary
         )
         Canvas(
@@ -418,7 +459,6 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
         ) {
             val barWidth = 13F // Adjusted bar width for 31 days
             val barSpacing = 26.5F // Adjusted bar spacing for 31 days
-            val start = 1500
 
             // Draw horizontal dotted lines
             val paint = Paint().asFrameworkPaint().apply {
@@ -428,7 +468,7 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
             }
 
             levels.forEach { bpmLevel ->
-                val yPos = start - bpmLevel * factor
+                val yPos = start - (bpmLevel - minRange) * factor
                 drawIntoCanvas {
                     it.nativeCanvas.drawLine(
                         0f,
@@ -438,13 +478,25 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                         paint
                     )
                 }
+                drawIntoCanvas {
+                    it.nativeCanvas.drawText(
+                        bpmLevel.toString(),
+                        barSpacing * 32.35f,
+                        yPos,
+                        Paint().asFrameworkPaint().apply {
+                            color = colorOnPrimary.toArgb()
+                            textSize = 36f // Adjust text size as needed
+                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
+                        }
+                    )
+                }
             }
 
             dailyData.entries.withIndex().forEach { (index, entry) ->
                 val (date, bpm) = entry
                 bpm?.let {
-                    val barUp = it.maxBpm.toFloat() * factor
-                    val barHeight = (max((it.maxBpm.toFloat() - it.minBpm.toFloat()).toInt(),1)) * factor
+                    val barUp = (it.maxBpm - minRange) * factor
+                    val barHeight = (it.maxBpm - it.minBpm.toFloat())* factor
                     drawRoundRect(
                         color = PsychedelicPurple,
                         topLeft = Offset(barSpacing * index, start - barUp),
@@ -454,9 +506,9 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                 }
 
                 // Draw date labels for the first entry, every 5th entry, and the first of the month
-                if (index == 0 || index % 5 == 0 || date.dayOfMonth == 1) {
+                if (index == 0 || index % 5 == 0) {
                     drawIntoCanvas {
-                        val formattedDate = if (date.dayOfMonth == 1) {
+                        val formattedDate = if (date.dayOfMonth <= 4) {
                             date.format(DateTimeFormatter.ofPattern("d/M"))
                         } else {
                             date.format(DateTimeFormatter.ofPattern("d"))
@@ -465,7 +517,7 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                         it.nativeCanvas.drawText(
                             formattedDate,
                             barSpacing * index + 10f,
-                            (start - 175).toFloat(), // Position below the bars
+                            (start + 125).toFloat(), // Position below the bars
                             Paint().asFrameworkPaint().apply {
                                 color = colorOnPrimary.toArgb()
                                 textSize = 36f // Adjust text size as needed
@@ -474,24 +526,6 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
                             }
                         )
                     }
-                }
-            }
-
-            // Draw Y-axis labels
-            levels.forEach { i ->
-                val yPos = start - i * factor - 2
-
-                drawIntoCanvas {
-                    it.nativeCanvas.drawText(
-                        i.toString(),
-                        barSpacing * 32.35f,
-                        yPos,
-                        Paint().asFrameworkPaint().apply {
-                            color = colorOnPrimary.toArgb()
-                            textSize = 36f // Adjust text size as needed
-                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
-                        }
-                    )
                 }
             }
         }

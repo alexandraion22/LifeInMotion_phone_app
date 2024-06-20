@@ -79,38 +79,38 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
     var goals by remember { mutableStateOf<Goals?>(null) }
     var stepsTodayNr by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) {
-//        val conditions = CustomModelDownloadConditions.Builder()
-//            .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
-//            .build()
-//        FirebaseModelDownloader.getInstance()
-//            .getModel("workout-classifier", DownloadType.LATEST_MODEL,
-//                conditions)
-//            .addOnSuccessListener { model: CustomModel? ->
-//                val modelFile = model?.file
-//                if (modelFile != null) {
-//                    Log.e("HERE1",modelFile.path)
-//                }
-//                Log.e("HERE2",modelFile.toString())
-//                if (modelFile != null) {
-//                    val interpreter = Interpreter(modelFile)
-//                    val inputData = floatArrayOf(88f/198f,59f/198f,114f/198f,4.7196f)
-//                    // Convert the input data to ByteBuffer
-//                    val inputBuffer = ByteBuffer.allocateDirect(4 * inputData.size)
-//                    inputBuffer.order(ByteOrder.nativeOrder())
-//                    inputBuffer.asFloatBuffer().put(inputData)
-//                    val bufferSize = 4 * java.lang.Float.SIZE / java.lang.Byte.SIZE
-//                    val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
-//                    interpreter.run(inputBuffer, modelOutput)
-//                    modelOutput.rewind()
-//                    val outputShape = intArrayOf(1, 4)
-//                    val outputData = FloatArray(outputShape[1])
-//                    modelOutput.asFloatBuffer().get(outputData)
-//                    outputData.forEach { Log.e("HERE",it.toString()) }
-//                }
-//            }
-//            .addOnFailureListener {exception ->
-//                Log.e("ModelDownload", "Failed to download model", exception)
-//            }
+        val conditions = CustomModelDownloadConditions.Builder()
+            .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
+            .build()
+        FirebaseModelDownloader.getInstance()
+            .getModel("workout-classifier", DownloadType.LATEST_MODEL,
+                conditions)
+            .addOnSuccessListener { model: CustomModel? ->
+                val modelFile = model?.file
+                if (modelFile != null) {
+                    Log.e("HERE1",modelFile.path)
+                }
+                Log.e("HERE2",modelFile.toString())
+                if (modelFile != null) {
+                    val interpreter = Interpreter(modelFile)
+                    val inputData = floatArrayOf(88f/198f,59f/198f,114f/198f,4.7196f)
+                    // Convert the input data to ByteBuffer
+                    val inputBuffer = ByteBuffer.allocateDirect(4 * inputData.size)
+                    inputBuffer.order(ByteOrder.nativeOrder())
+                    inputBuffer.asFloatBuffer().put(inputData)
+                    val bufferSize = 4 * java.lang.Float.SIZE / java.lang.Byte.SIZE
+                    val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
+                    interpreter.run(inputBuffer, modelOutput)
+                    modelOutput.rewind()
+                    val outputShape = intArrayOf(1, 4)
+                    val outputData = FloatArray(outputShape[1])
+                    modelOutput.asFloatBuffer().get(outputData)
+                    outputData.forEach { Log.e("HERE",it.toString()) }
+                }
+            }
+            .addOnFailureListener {exception ->
+                Log.e("ModelDownload", "Failed to download model", exception)
+            }
         scope.launch {
             user = userViewModel.getUser()
             fullName = user?.fullName ?: "User"
@@ -169,7 +169,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = "${bpmLast?.bpm}",
+                                    text = "${bpmLast?.bpm?:0}",
                                     fontSize = 28.sp, // Adjusted font size for the number
                                     fontWeight = FontWeight.Bold,
                                     color = colors.onPrimary

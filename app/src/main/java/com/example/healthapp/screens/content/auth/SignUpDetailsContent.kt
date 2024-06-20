@@ -23,8 +23,10 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -266,6 +268,7 @@ fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int) 
                         .fillMaxWidth(width)
                         .clip(RoundedCornerShape(16.dp))
                         .heightIn(max = 180.dp)
+                        .verticalScroll(rememberScrollState())
                         .border(1.dp, KindaLightGray, RoundedCornerShape(16.dp)),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {

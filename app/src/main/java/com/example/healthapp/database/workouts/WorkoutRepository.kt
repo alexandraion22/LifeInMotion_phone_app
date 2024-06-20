@@ -28,6 +28,10 @@ class WorkoutRepository @Inject constructor(private val workoutDao: WorkoutDao) 
         workoutDao.deleteWorkoutById(id)
     }
 
+    suspend fun getEntryById(id: Int): Workout? {
+        return workoutDao.getEntryById(id)
+    }
+
     suspend fun update(id: Int, updatedEntry: Workout) {
         workoutDao.updateWorkoutById(id, updatedEntry.timestamp, updatedEntry.duration, updatedEntry.type, updatedEntry.calories, updatedEntry.minHR, updatedEntry.maxHR, updatedEntry.meanHR, updatedEntry.confirmed)
     }

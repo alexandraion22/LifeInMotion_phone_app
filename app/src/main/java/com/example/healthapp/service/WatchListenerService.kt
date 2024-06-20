@@ -4,6 +4,10 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.healthapp.database.activity.ActivityDaily
 import com.example.healthapp.database.activity.ActivityDailyRepository
 import com.example.healthapp.database.bpm.daily.BpmDaily
@@ -27,7 +31,9 @@ import com.google.android.gms.wearable.WearableListenerService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -87,11 +93,7 @@ class WatchListenerService: WearableListenerService() {
     private fun handleStartedWorkout(data: ByteArray) {
         CoroutineScope(Dispatchers.IO).launch {
             val previousEntry = stateRepository.getFirst()
-            if (previousEntry == null)
-                stateRepository.insert(
-                    returnNewState(isWorkingOutWatch = true))
-            else
-                stateRepository.updateIsWorkingOutWatch(previousEntry.id, true)
+            stateRepository.updateIsWorkingOutWatch(previousEntry.id, true)
         }
     }
 
@@ -99,8 +101,7 @@ class WatchListenerService: WearableListenerService() {
     private fun handleReceivedWorkout(data: ByteArray) {
         CoroutineScope(Dispatchers.IO).launch {
             val previousEntry = stateRepository.getFirst()
-            if (previousEntry != null)
-                stateRepository.updateIsWorkingOutWatch(previousEntry.id, false)
+            stateRepository.updateIsWorkingOutWatch(previousEntry.id, false)
         }
 
         val message = String(data)
@@ -146,7 +147,7 @@ class WatchListenerService: WearableListenerService() {
             activityDailyRepository.update(
                 ActivityDaily(
                     timestamp = startOfDay.toEpochMillis(),
-                    activeTime = ((duration / 60000).toInt() + activeBefore)
+                    activeTime = (duration / 60000).toInt().coerceAtMost(30) + activeBefore
                 )
             )
             caloriesDailyRepository.update(
@@ -172,138 +173,148 @@ class WatchListenerService: WearableListenerService() {
         )
 
         CoroutineScope(Dispatchers.IO).launch {
-            val state = stateRepository.getFirst()
-            stateRepository.deleteAllStates()
-            if (state != null) {
-                Log.e("STATE","Checking the state of the user")
-                Log.e("STATE",state.toString())
-                // If the user is currently sleeping, continue the analysis
-                if(state.stepsLast4Minutes!=0){
-                    if(state.timestampLastSteps < LocalDateTime.now().minusMinutes(10).toEpochMillis()){
-                        stateRepository.updateStepsLast4Minutes(state.id, 0)
-                        stateRepository.updateStepsLast8Minutes(state.id,0)
+            var state = stateRepository.getFirst()
+            Log.e("STATE","Checking the state of the user")
+            Log.e("STATE",state.toString())
+
+            if(state.stepsLast4Minutes!=0 || state.stepsLast8Minutes!=0){
+                if(state.timestampLastSteps < LocalDateTime.now().minusMinutes(10).toEpochMillis()){
+                    stateRepository.updateStepsLast4Minutes(state.id, 0)
+                    stateRepository.updateStepsLast8Minutes(state.id,0)
+                }
+                else
+                    if(state.timestampLastSteps < LocalDateTime.now().minusMinutes(5).toEpochMillis()){
+                        stateRepository.updateStepsLast8Minutes(state.id,state.stepsLast4Minutes)
+                        stateRepository.updateStepsLast4Minutes(state.id,0)
+                        stateRepository.updateTimestampLastSteps(state.id, LocalDateTime.now().toEpochMillis())
+                    }
+                state = stateRepository.getFirst()
+            }
+
+            // If the user is not working out, check if he's sleeping
+            sleepCheck(bpm, state)
+            state = stateRepository.getFirst()
+
+            // If the user is not sleeping after the check, check if he's active
+            if(!state.isWorkingOutWatch) {
+                if (bpm > 0.5f * 198 && bpmRepository.getFirst().bpm > 0.5f * 198) {
+                    // Start a workout if neither is active
+                    if(!state.isWorkingOutBpm && !state.isWalking) {
+                        Log.e("BIG HR and no workout", state.toString())
+                        stateRepository.updateMaxBpmWorkout(state.id,bpm)
+                        stateRepository.updateMinBpmWorkout(state.id,bpm)
+                        stateRepository.updateTimestampStartedWorkout(
+                            state.id,
+                            LocalDateTime.now().toEpochMillis()
+                        )
+                        if (state.stepsLast8Minutes + state.stepsLast4Minutes > 400) {
+                            stateRepository.updateIsWalking(state.id, true)
+                            stateRepository.updateCaloriesConsumedBpm(
+                                state.id,
+                                (0.035 * (state.stepsLast8Minutes + state.stepsLast4Minutes)).toInt()
+                            )
+                        } else {
+                            stateRepository.updateIsWorkingOutBpm(state.id, true)
+                            stateRepository.updateCaloriesConsumedBpm(
+                                state.id,
+                                calculateCalories(bpmRepository.getFirst().bpm, bpm)
+                            )
+                        }
+                    } else {
+                        // Continue a workout
+                        Log.e("BIG HR and workout", state.toString())
+                        if(state.maxBpmWorkout < bpm)
+                            stateRepository.updateMaxBpmWorkout(state.id,bpm)
+                        if(state.minBpmWorkout > bpm)
+                            stateRepository.updateMinBpmWorkout(state.id,bpm)
+                        if (state.isWalking) {
+                            stateRepository.updateCaloriesConsumedBpm(
+                                state.id,
+                                (0.035 * (state.stepsLast4Minutes)).toInt() + state.caloriesConsumedBpm
+                            )
+                        }
+                        if (state.isWorkingOutBpm) {
+                            stateRepository.updateCaloriesConsumedBpm(
+                                state.id,
+                                calculateCalories(bpmRepository.getFirst().bpm, bpm) + state.caloriesConsumedBpm
+                            )
+                        }
+                    }
+                }
+                else
+                {
+                    // Update the bpm
+                    if(state.maxBpmWorkout < bpm)
+                        stateRepository.updateMaxBpmWorkout(state.id,bpm)
+                    if(state.minBpmWorkout > bpm)
+                        stateRepository.updateMinBpmWorkout(state.id,bpm)
+                    state = stateRepository.getFirst()
+
+                    if(state.isWorkingOutBpm){
+                        workoutRepository.insert(Workout(
+                            meanHR = (state.minBpmWorkout + state.maxBpmWorkout)/2,
+                            minHR = state.minBpmWorkout,
+                            maxHR = state.maxBpmWorkout,
+                            duration = LocalDateTime.now().toEpochMillis()-state.timestampStartWorkout,
+                            calories = state.caloriesConsumedBpm,
+                            type = "circuit_training",
+                            autoRecorder = true,
+                            confirmed = false,
+                            timestamp = state.timestampStartWorkout
+                        ))
+                        updateActiveTimeAndCalories(LocalDateTime.now().toEpochMillis()-state.timestampStartWorkout, state.caloriesConsumedBpm)
+                        stateRepository.updateCaloriesConsumedBpm(state.id,0)
+                        stateRepository.updateIsWorkingOutBpm(state.id,false)
+                        stateRepository.updateTimestampStartedWorkout(state.id,0)
+                        stateRepository.updateMinBpmWorkout(state.id,0)
+                        stateRepository.updateMaxBpmWorkout(state.id,0)
                     }
                     else
-                        if(state.timestampLastSteps < LocalDateTime.now().minusMinutes(5).toEpochMillis()){
-                            stateRepository.updateStepsLast8Minutes(state.id,state.stepsLast4Minutes)
-                            stateRepository.updateStepsLast4Minutes(state.id,0)
-                            stateRepository.updateTimestampLastSteps(state.id, LocalDateTime.now().toEpochMillis())
-                        }
-                }
+                    {
+                        if(state.maxBpmWorkout < bpm)
+                            stateRepository.updateMaxBpmWorkout(state.id,bpm)
+                        if(state.minBpmWorkout > bpm)
+                            stateRepository.updateMinBpmWorkout(state.id,bpm)
+                        state = stateRepository.getFirst()
 
-                // If the user is not working out, check if he's sleeping
-                if(!state.isWorkingOutWatch && !state.isWorkingOutBpm && !state.isWalking)
-                    sleepCheck(bpm, timestamp, state)
-
-                // If the user is not sleeping after the check, check if he's active
-                if(!state.isWorkingOutWatch) {
-                    if (bpm > 0.5f * 198 && bpmRepository.getFirst().bpm > 0.5f * 198) {
-                        // Start a workout if neither is active
-                        if(!state.isWorkingOutBpm && !state.isWalking) {
-                            Log.e("BIG HR and no workout", state.toString())
-                            stateRepository.updateTimestampStartedWorkout(
-                                state.id,
-                                LocalDateTime.now().toEpochMillis()
-                            )
-                            if (state.stepsLast8Minutes + state.stepsLast4Minutes > 720) {
+                        if (state.stepsLast8Minutes + state.stepsLast4Minutes > 400) {
+                            if(state.isWalking)
+                                stateRepository.updateCaloriesConsumedBpm(
+                                    state.id,
+                                    (0.035 *  state.stepsLast4Minutes).toInt() + state.caloriesConsumedBpm
+                                )
+                            else
+                            {
                                 stateRepository.updateIsWalking(state.id, true)
                                 stateRepository.updateCaloriesConsumedBpm(
                                     state.id,
                                     (0.035 * (state.stepsLast8Minutes + state.stepsLast4Minutes)).toInt()
                                 )
-                            } else {
-                                stateRepository.updateIsWorkingOutBpm(state.id, true)
-                                stateRepository.updateCaloriesConsumedBpm(
-                                    state.id,
-                                    calculateCalories(bpmRepository.getFirst().bpm, bpm)
-                                )
-                            }
-                        } else {
-                            // Continue a workout
-                            Log.e("BIG HR and workout", state.toString())
-                            if (state.isWalking) {
-                                stateRepository.updateCaloriesConsumedBpm(
-                                    state.id,
-                                    (0.035 * (state.stepsLast4Minutes)).toInt() + state.caloriesConsumedBpm
-                                )
-                            }
-                            if (state.isWorkingOutBpm) {
-                                stateRepository.updateCaloriesConsumedBpm(
-                                    state.id,
-                                    calculateCalories(bpmRepository.getFirst().bpm, bpm) + state.caloriesConsumedBpm
-                                )
                             }
                         }
-                    }
-                    else
-                    {
-                        if(state.isWorkingOutBpm){
+                        else if(state.isWalking)
+                        {
                             workoutRepository.insert(Workout(
-                                meanHR = 0,
-                                minHR = 0,
-                                maxHR = 0,
+                                meanHR = (state.minBpmWorkout + state.maxBpmWorkout)/2,
+                                minHR = state.minBpmWorkout,
+                                maxHR = state.maxBpmWorkout,
                                 duration = LocalDateTime.now().toEpochMillis()-state.timestampStartWorkout,
                                 calories = state.caloriesConsumedBpm,
-                                type = "circuit_training",
-                                autoRecorder = false,
-                                confirmed = true,
+                                type = "walk",
+                                autoRecorder = true,
+                                confirmed = false,
                                 timestamp = state.timestampStartWorkout
                             ))
-                            Log.e("WORKOUT",
-                                (LocalDateTime.now().toEpochMillis()-state.timestampStartWorkout).toString()
-                            )
                             updateActiveTimeAndCalories(LocalDateTime.now().toEpochMillis()-state.timestampStartWorkout, state.caloriesConsumedBpm)
                             stateRepository.updateCaloriesConsumedBpm(state.id,0)
-                            stateRepository.updateIsWorkingOutBpm(state.id,false)
                             stateRepository.updateIsWalking(state.id,false)
                             stateRepository.updateTimestampStartedWorkout(state.id,0)
-
-                        }
-                        else
-                        {
-                            if (state.stepsLast8Minutes + state.stepsLast4Minutes > 720) {
-                                if(state.isWalking)
-                                    stateRepository.updateCaloriesConsumedBpm(
-                                        state.id,
-                                        (0.035 *  state.stepsLast4Minutes).toInt() + state.caloriesConsumedBpm
-                                    )
-                                else
-                                {
-                                    stateRepository.updateIsWalking(state.id, true)
-                                    stateRepository.updateCaloriesConsumedBpm(
-                                        state.id,
-                                        (0.035 * (state.stepsLast8Minutes + state.stepsLast4Minutes)).toInt()
-                                    )
-                                }
-                            }
-                            else if(state.isWalking)
-                            {
-                                workoutRepository.insert(Workout(
-                                    meanHR = 0,
-                                    minHR = 0,
-                                    maxHR = 0,
-                                    duration = LocalDateTime.now().toEpochMillis()-state.timestampStartWorkout,
-                                    calories = state.caloriesConsumedBpm,
-                                    type = "walk",
-                                    autoRecorder = true,
-                                    confirmed = false,
-                                    timestamp = state.timestampStartWorkout
-                                ))
-                                Log.e("STEPS",
-                                    (LocalDateTime.now().toEpochMillis()-state.timestampStartWorkout).toString()
-                                )
-                                updateActiveTimeAndCalories(LocalDateTime.now().toEpochMillis()-state.timestampStartWorkout, state.caloriesConsumedBpm)
-                                stateRepository.updateCaloriesConsumedBpm(state.id,0)
-                                stateRepository.updateIsWorkingOutBpm(state.id,false)
-                                stateRepository.updateIsWalking(state.id,false)
-                                stateRepository.updateTimestampStartedWorkout(state.id,0)
-                            }
+                            stateRepository.updateMinBpmWorkout(state.id,0)
+                            stateRepository.updateMaxBpmWorkout(state.id,0)
                         }
                     }
                 }
             }
-                else
-                    stateRepository.insert(returnNewState())
 
             // Update the  bpm
             bpmRepository.deleteAllBpms() // delete all the previous entries
@@ -319,16 +330,17 @@ class WatchListenerService: WearableListenerService() {
 
     private fun finishSleep(state: State) {
         CoroutineScope(Dispatchers.IO).launch {
-            stateRepository.updateSleepCycle(state.id,0)
-            stateRepository.updateSleepStage(state.id,0)
+            stateRepository.updateSleepCycle(state.id, 0)
+            stateRepository.updateSleepStage(state.id, 0)
             stateRepository.updateTimeDeepSleep(state.id, 0)
             stateRepository.updateTimeLightSleep(state.id, 0)
-            stateRepository.updateTimeREM(state.id,0)
-            stateRepository.updateIsSleeping(state.id,false)
+            stateRepository.updateTimeREM(state.id, 0)
+            stateRepository.updateIsSleeping(state.id, false)
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun sleepCheck(bpm: Int, timestamp: LocalDateTime?, state: State){
+    private suspend fun sleepCheck(bpm: Int, state: State){
         Log.e("SLEEP", "Entered check sleep with bpm:$bpm")
         Log.e("SLEEP", "Current state:$state")
         CoroutineScope(Dispatchers.IO).launch {
@@ -363,15 +375,20 @@ class WatchListenerService: WearableListenerService() {
                             stateRepository.updateTimeDeepSleep(state.id, state.timeDeepSleep+ 5)
                         }
                         bpm in (0.35 * maxBpm).toInt().. (0.45 * maxBpm).toInt() -> {
-                            if (state.sleepCycle > 0) {
+                            if(state.timeDeepSleep!=0) {
+                                // Only move to REM, if the user has been in deep sleep
                                 Log.e("SLEEP", "Transition from N1 to REM with bpm:$bpm")
                                 stateRepository.updateSleepStage(state.id, 3)
-                                stateRepository.updateSleepCycle(state.id,state.sleepCycle + 1)
+                                stateRepository.updateSleepCycle(state.id, state.sleepCycle + 1)
                                 stateRepository.updateTimeREM(state.id, state.timeREM + 5)
                             }
                             else
                             {
                                 Log.e("SLEEP", "Woke up from N1 with bpm:$bpm")
+                                if (state.sleepCycle > 0) {
+                                    Log.e("SLEEP","Add sleep to database")
+                                    workoutRepository.insert(Workout(timestamp = LocalDateTime.now().toEpochMillis(), calories = state.timeLightSleep, duration = state.timeDeepSleep.toLong(), type = state.timeREM.toString(), maxHR = state.timeREM, autoRecorder = false, meanHR = 0, minHR = 0, confirmed = false))
+                                }
                                 finishSleep(state)
                             }
                         }
@@ -437,22 +454,17 @@ class WatchListenerService: WearableListenerService() {
             stepsUpdateOrCreateDailyEntry(steps, timestamp)
 
             val previousEntry = stateRepository.getFirst()
-            if (previousEntry != null)
-            {
-                if(timestamp.minusMinutes(5).toEpochMillis() < previousEntry.timestampLastSteps) {
-                    stateRepository.updateStepsLast8Minutes(previousEntry.id,previousEntry.stepsLast4Minutes)
-                    stateRepository.updateStepsLast4Minutes(previousEntry.id,steps)
-                    stateRepository.updateTimestampLastSteps(previousEntry.id,timestamp.toEpochMillis())
-                }
-                else
-                {
-                    stateRepository.updateStepsLast8Minutes(previousEntry.id,0)
-                    stateRepository.updateStepsLast4Minutes(previousEntry.id,steps)
-                    stateRepository.updateTimestampLastSteps(previousEntry.id,timestamp.toEpochMillis())
-                }
-
+            if(timestamp.minusMinutes(5).toEpochMillis() < previousEntry.timestampLastSteps) {
+                stateRepository.updateStepsLast8Minutes(previousEntry.id,previousEntry.stepsLast4Minutes)
+                stateRepository.updateStepsLast4Minutes(previousEntry.id,steps)
+                stateRepository.updateTimestampLastSteps(previousEntry.id,timestamp.toEpochMillis())
             }
-            else stateRepository.insert(returnNewState(stepsLast4Minutes = steps, timestampLastSteps = timestamp.toEpochMillis()))
+            else
+            {
+                stateRepository.updateStepsLast8Minutes(previousEntry.id,0)
+                stateRepository.updateStepsLast4Minutes(previousEntry.id,steps)
+                stateRepository.updateTimestampLastSteps(previousEntry.id,timestamp.toEpochMillis())
+            }
         }
     }
 
@@ -562,7 +574,9 @@ fun returnNewState(isSleeping: Boolean = false,
                    stepsLast8Minutes: Int = 0,
                    timestampLastSteps: Long = 0,
                    isWalking : Boolean = false,
-                   timeStampStartWorkout: Long = 0
+                   timeStampStartWorkout: Long = 0,
+                   maxBpmWorkout: Int = 0,
+                   minBpmWorkout: Int = 0
                    ) : State {
     return State(isSleeping = isSleeping,
         sleepStage = sleepStage,
@@ -577,7 +591,9 @@ fun returnNewState(isSleeping: Boolean = false,
         stepsLast4Minutes = stepsLast4Minutes,
         timestampLastSteps = timestampLastSteps,
         isWalking = isWalking,
-        timestampStartWorkout = timeStampStartWorkout
+        timestampStartWorkout = timeStampStartWorkout,
+        maxBpmWorkout = maxBpmWorkout,
+        minBpmWorkout = minBpmWorkout
         )
 }
 

@@ -12,7 +12,7 @@ interface StateDao {
     suspend fun insert(state: State)
 
     @Query("SELECT * FROM state_table LIMIT 1")
-    suspend fun getFirst(): State?
+    suspend fun getFirst(): State
 
     @Query("DELETE FROM state_table")
     suspend fun deleteAll()
@@ -46,6 +46,12 @@ interface StateDao {
 
     @Query("UPDATE state_table SET sleepCycle = :sleepCycle WHERE id = :id")
     suspend fun updateSleepCycle(id: Int, sleepCycle: Int)
+
+    @Query("UPDATE state_table SET minBpmWorkout = :minBpmWorkout WHERE id = :id")
+    suspend fun updateMinBpmWorkout(id: Int, minBpmWorkout: Int)
+
+    @Query("UPDATE state_table SET maxBpmWorkout = :maxBpmWorkout WHERE id = :id")
+    suspend fun updateMaxBpmWorkout(id: Int, maxBpmWorkout: Int)
 
     @Query("UPDATE state_table SET sleepStage = :sleepStage WHERE id = :id")
     suspend fun updateSleepStage(id: Int, sleepStage: Int)

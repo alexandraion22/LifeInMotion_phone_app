@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +40,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +51,7 @@ import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.service.toEpochMillis
 import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.PsychedelicPurple
+import com.example.healthapp.ui.theme.VeryLightGray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -87,14 +91,14 @@ fun StepsContent(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize().background(color = VeryLightGray),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Spacer(modifier = Modifier.height(24.dp))
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 24.dp, top = 2.dp, bottom = 8.dp),
-            contentAlignment = Alignment.CenterStart
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "Steps",
@@ -103,11 +107,14 @@ fun StepsContent(
                 color = colors.onPrimary
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.88f)
+                .fillMaxHeight(0.85f)
+                .clip(RoundedCornerShape(24.dp))
                 .border(1.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                .background(color = Color.White)
                 .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -200,7 +207,7 @@ fun StepsHourly(stepsList: List<StepsHourly>, colorOnPrimary: Color) {
     val roundedMaxSteps = ceil(maxSteps / 5000.0).toInt() * 5000
     val stepInterval = roundedMaxSteps / 4
     val levels = (0..roundedMaxSteps step stepInterval).toList()
-
+    val maxRange = levels[levels.size-1]
     Column {
         Text(
             text = "$totalSteps steps",
@@ -210,9 +217,10 @@ fun StepsHourly(stepsList: List<StepsHourly>, colorOnPrimary: Color) {
             color = colorOnPrimary
         )
         Text(
-            text = "(total)",
+            text = "total",
             modifier = Modifier.padding(top = 4.dp, start = 8.dp),
             fontSize = 18.sp,
+            fontStyle = FontStyle.Italic,
             color = colorOnPrimary
         )
         Canvas(
@@ -222,8 +230,8 @@ fun StepsHourly(stepsList: List<StepsHourly>, colorOnPrimary: Color) {
         ) {
             val barWidth = 20F
             val barSpacing = 35F
-            val start =1100
-            val heightFactor = (start - 500) * 1.5f / roundedMaxSteps.toFloat()
+            val start = 1000
+            val heightFactor = start/(1.1f * maxRange)
 
             // Draw horizontal dotted lines
             val paint = Paint().asFrameworkPaint().apply {
@@ -241,6 +249,19 @@ fun StepsHourly(stepsList: List<StepsHourly>, colorOnPrimary: Color) {
                         size.width - 50f,
                         yPos,
                         paint
+                    )
+                }
+                drawIntoCanvas {
+                    it.nativeCanvas.drawText(
+                        steps.toString(),
+                        size.width +50f,
+                        yPos,
+                        Paint().asFrameworkPaint().apply {
+                            color = colorOnPrimary.toArgb()
+                            textSize = 36f // Adjust text size as needed
+                            textAlign = android.graphics.Paint.Align.RIGHT
+                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
+                        }
                     )
                 }
             }
@@ -273,24 +294,6 @@ fun StepsHourly(stepsList: List<StepsHourly>, colorOnPrimary: Color) {
                         )
                     }
             }
-
-            // Draw Y-axis labels on the right side
-            levels.forEach { i ->
-                val yPos = start - i * heightFactor
-                drawIntoCanvas {
-                    it.nativeCanvas.drawText(
-                        i.toString(),
-                        size.width +50f,
-                        yPos,
-                        Paint().asFrameworkPaint().apply {
-                            color = colorOnPrimary.toArgb()
-                            textSize = 36f // Adjust text size as needed
-                            textAlign = android.graphics.Paint.Align.RIGHT
-                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
-                        }
-                    )
-                }
-            }
         }
     }
 }
@@ -318,19 +321,21 @@ fun Steps7Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
     val roundedMaxSteps = ceil(maxSteps / 5000.0).toInt() * 5000
     val stepInterval = roundedMaxSteps / 4
     val levels = (0..roundedMaxSteps step stepInterval).toList()
+    val maxRange = levels[levels.size-1]
 
     Column {
         Text(
-            text = "$averageSteps steps/day",
+            text = "$averageSteps steps / day",
             modifier = Modifier.padding(top = 16.dp, start = 8.dp),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = colorOnPrimary
         )
         Text(
-            text = "(average)",
+            text = "average",
             modifier = Modifier.padding(top = 4.dp, start = 8.dp),
             fontSize = 18.sp,
+            fontStyle = FontStyle.Italic,
             color = colorOnPrimary
         )
         Canvas(
@@ -340,8 +345,8 @@ fun Steps7Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
         ) {
             val barWidth = 60F
             val barSpacing = 124F
-            val start = 1100
-            val heightFactor = (start - 500) * 1.5f / roundedMaxSteps.toFloat()
+            val start = 1000
+            val heightFactor = start / (1.1f * maxRange)
 
             // Draw horizontal dotted lines
             val paint = Paint().asFrameworkPaint().apply {
@@ -359,6 +364,19 @@ fun Steps7Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
                         size.width - 50f,
                         yPos,
                         paint
+                    )
+                }
+                drawIntoCanvas {
+                    it.nativeCanvas.drawText(
+                        steps.toString(),
+                        size.width + 50f,
+                        yPos,
+                        Paint().asFrameworkPaint().apply {
+                            color = colorOnPrimary.toArgb()
+                            textSize = 36f // Adjust text size as needed
+                            textAlign = android.graphics.Paint.Align.RIGHT
+                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
+                        }
                     )
                 }
             }
@@ -396,24 +414,6 @@ fun Steps7Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
                     )
                 }
             }
-
-            // Draw Y-axis labels on the right side
-            levels.forEach { i ->
-                val yPos = start - i * heightFactor
-                drawIntoCanvas {
-                    it.nativeCanvas.drawText(
-                        i.toString(),
-                        size.width + 50f,
-                        yPos,
-                        Paint().asFrameworkPaint().apply {
-                            color = colorOnPrimary.toArgb()
-                            textSize = 36f // Adjust text size as needed
-                            textAlign = android.graphics.Paint.Align.RIGHT
-                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
-                        }
-                    )
-                }
-            }
         }
     }
 }
@@ -441,6 +441,7 @@ fun Steps31Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
     val roundedMaxSteps = ceil(maxSteps / 5000.0).toInt() * 5000
     val stepInterval = roundedMaxSteps / 4
     val levels = (0..roundedMaxSteps step stepInterval).toList()
+    val maxRange = levels[levels.size-1]
 
     Column {
         Text(
@@ -451,9 +452,10 @@ fun Steps31Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
             color = colorOnPrimary
         )
         Text(
-            text = "(average)",
+            text = "average",
             modifier = Modifier.padding(top = 4.dp, start = 8.dp),
             fontSize = 18.sp,
+            fontStyle = FontStyle.Italic,
             color = colorOnPrimary
         )
         Canvas(
@@ -463,8 +465,8 @@ fun Steps31Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
         ) {
             val barWidth = 13F // Adjusted bar width for 31 days
             val barSpacing = 26.5F // Adjusted bar spacing for 31 days
-            val start = 1100
-            val heightFactor = (start - 500) * 1.5f / roundedMaxSteps.toFloat()
+            val start = 1000
+            val heightFactor = start / (1.1f * maxRange)
 
             // Draw horizontal dotted lines
             val paint = Paint().asFrameworkPaint().apply {
@@ -484,6 +486,19 @@ fun Steps31Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
                         paint
                     )
                 }
+                drawIntoCanvas {
+                    it.nativeCanvas.drawText(
+                        steps.toString(),
+                        size.width + 50f,
+                        yPos,
+                        Paint().asFrameworkPaint().apply {
+                            color = colorOnPrimary.toArgb()
+                            textSize = 36f // Adjust text size as needed
+                            textAlign = android.graphics.Paint.Align.RIGHT
+                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
+                        }
+                    )
+                }
             }
 
             dailyData.entries.withIndex().forEach { (index, entry) ->
@@ -499,9 +514,9 @@ fun Steps31Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
                 }
 
                 // Draw date labels for the first entry, every 5th entry, and the first of the month
-                if (index == 0 || index % 5 == 0 || date.dayOfMonth == 1) {
+                if (index == 0 || index % 5 == 0) {
                     drawIntoCanvas {
-                        val formattedDate = if (date.dayOfMonth == 1) {
+                        val formattedDate = if (date.dayOfMonth <= 4) {
                             date.format(DateTimeFormatter.ofPattern("d/M"))
                         } else {
                             date.format(DateTimeFormatter.ofPattern("d"))
@@ -519,24 +534,6 @@ fun Steps31Days(stepsList: List<StepsDaily>, colorOnPrimary: Color) {
                             }
                         )
                     }
-                }
-            }
-
-            // Draw Y-axis labels on the right side
-            levels.forEach { i ->
-                val yPos = start - i * heightFactor
-                drawIntoCanvas {
-                    it.nativeCanvas.drawText(
-                        i.toString(),
-                        size.width + 50f,
-                        yPos,
-                        Paint().asFrameworkPaint().apply {
-                            color = colorOnPrimary.toArgb()
-                            textSize = 36f // Adjust text size as needed
-                            textAlign = android.graphics.Paint.Align.RIGHT
-                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD) // Set text to bold
-                        }
-                    )
                 }
             }
         }

@@ -27,4 +27,7 @@ interface WorkoutDao {
 
     @Query("DELETE FROM workouts_table WHERE id = :id")
     suspend fun deleteWorkoutById(id: Int)
+
+    @Query("SELECT * FROM workouts_table WHERE id = :id")
+    suspend fun getEntryById(id: Int): Workout?
 }
