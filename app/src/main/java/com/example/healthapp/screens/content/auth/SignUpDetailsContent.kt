@@ -167,7 +167,7 @@ fun SignUpDetailsContent(navController: NavHostController, userViewModel: UserVi
                                 weight = weightString.toDouble(),
                                 gender = genders[selectedIndex],
                                 bmi = calculateBMI(weight = weightString.toDouble(), height = heightString.toDouble()),
-                                activityLevel = 0
+                                activityLevel = 3
                             )
                             userViewModel.deleteAllUsers()
                             userViewModel.insert(userData)

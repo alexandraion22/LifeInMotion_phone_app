@@ -111,6 +111,41 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
             .addOnFailureListener {exception ->
                 Log.e("ModelDownload", "Failed to download model", exception)
             }
+        FirebaseModelDownloader.getInstance()
+            .getModel("sleep-efficiency", DownloadType.LATEST_MODEL,
+                conditions)
+            .addOnSuccessListener { model: CustomModel? ->
+                val modelFile = model?.file
+                if (modelFile != null) {
+                    Log.e("HERE1",modelFile.path)
+                }
+                Log.e("HERE2",modelFile.toString())
+                if (modelFile != null) {
+                    val interpreter = Interpreter(modelFile)
+                    val inputData = floatArrayOf(6.0f, 18f, 70f, 12f)
+
+                    // Convert the input data to ByteBuffer
+                    val inputBuffer = ByteBuffer.allocateDirect(4 * inputData.size)
+                    inputBuffer.order(ByteOrder.nativeOrder())
+                    inputBuffer.asFloatBuffer().put(inputData)
+
+                    // Allocate buffer for the output (single float)
+                    val bufferSize = 4 // Size of a float in bytes
+                    val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
+
+                    // Run the model
+                    interpreter.run(inputBuffer, modelOutput)
+
+                    // Rewind and extract the float output
+                    modelOutput.rewind()
+                    val outputData = modelOutput.asFloatBuffer().get(0)
+                    Log.e("TAG", outputData.toString())
+                }
+
+            }
+            .addOnFailureListener {exception ->
+                Log.e("ModelDownload", "Failed to download model", exception)
+            }
         scope.launch {
             user = userViewModel.getUser()
             fullName = user?.fullName ?: "User"

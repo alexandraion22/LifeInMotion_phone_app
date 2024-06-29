@@ -33,6 +33,7 @@ import com.example.healthapp.database.bpm.last.BpmRepository
 import com.example.healthapp.database.calories.CaloriesDailyRepository
 import com.example.healthapp.database.goals.GoalsRepository
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
+import com.example.healthapp.database.sleep.SleepDailyRepository
 import com.example.healthapp.database.steps.daily.StepsDailyRepository
 import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.database.users.UserViewModel
@@ -56,13 +57,14 @@ fun HomeScreen(
     caloriesDailyRepository: CaloriesDailyRepository,
     activityDailyRepository: ActivityDailyRepository,
     goalsRepository: GoalsRepository,
-    workoutRepository: WorkoutRepository
+    workoutRepository: WorkoutRepository,
+    sleepDailyRepository: SleepDailyRepository
 ) {
     Scaffold(
         topBar = { TopBar(navController = navController) },
         bottomBar = { BottomBar(navController = navController) }
     ) {
-        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository, workoutRepository = workoutRepository)
+        HomeNavGraph(navController = navController, userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsDailyRepository = stepsDailyRepository, stepsHourlyRepository = stepsHourlyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository, workoutRepository = workoutRepository, sleepDailyRepository = sleepDailyRepository)
     }
 }
 

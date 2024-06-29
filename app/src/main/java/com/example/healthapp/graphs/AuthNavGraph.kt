@@ -13,6 +13,7 @@ import com.example.healthapp.database.bpm.last.BpmRepository
 import com.example.healthapp.database.calories.CaloriesDailyRepository
 import com.example.healthapp.database.goals.GoalsRepository
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
+import com.example.healthapp.database.sleep.SleepDailyRepository
 import com.example.healthapp.database.steps.daily.StepsDailyRepository
 import com.example.healthapp.database.steps.hourly.StepsHourlyRepository
 import com.example.healthapp.database.users.UserViewModel
@@ -25,7 +26,7 @@ import com.example.healthapp.screens.mainscreens.HomeScreen
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository, workoutScheduleRepository: WorkoutScheduleRepository, caloriesDailyRepository: CaloriesDailyRepository, activityDailyRepository: ActivityDailyRepository, goalsRepository: GoalsRepository, workoutRepository: WorkoutRepository) {
+fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel, startDestination: String, bpmDailyRepository: BpmDailyRepository, bpmHourlyRepository: BpmHourlyRepository, stepsHourlyRepository: StepsHourlyRepository, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository, workoutScheduleRepository: WorkoutScheduleRepository, caloriesDailyRepository: CaloriesDailyRepository, activityDailyRepository: ActivityDailyRepository, goalsRepository: GoalsRepository, workoutRepository: WorkoutRepository, sleepDailyRepository: SleepDailyRepository) {
     NavHost(
         navController = navController,
         route = Graph.AUTHENTICATION,
@@ -49,7 +50,7 @@ fun AuthNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             )
         }
         composable(route = Graph.HOME) {
-            HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository, workoutRepository = workoutRepository)
+            HomeScreen(userViewModel = userViewModel, bpmDailyRepository = bpmDailyRepository, bpmHourlyRepository = bpmHourlyRepository, stepsHourlyRepository = stepsHourlyRepository, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository, workoutScheduleRepository = workoutScheduleRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository, workoutRepository = workoutRepository, sleepDailyRepository = sleepDailyRepository)
         }
     }
 }

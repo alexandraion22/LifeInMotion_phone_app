@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -243,6 +244,7 @@ fun CustomTextField(
             .fillMaxWidth()
             .padding(bottom = 8.dp)
             .focusRequester(focusRequester)
+            .clip(RoundedCornerShape(16.dp))
             .border(1.dp, KindaLightGray, RoundedCornerShape(16.dp)),
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = imeAction,

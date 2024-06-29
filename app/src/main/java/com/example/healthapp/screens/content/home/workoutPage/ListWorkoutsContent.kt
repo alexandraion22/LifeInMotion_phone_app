@@ -99,6 +99,7 @@ fun ListWorkoutsContent(
         dayWorkouts = withContext(Dispatchers.IO) {
             workoutRepository.getEntriesForDay(startOfDay, startOfNextDay)
         }
+        Log.e("TAG",dayWorkouts.toString())
     }
 
     Column(modifier = Modifier

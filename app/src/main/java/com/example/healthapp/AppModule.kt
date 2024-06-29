@@ -23,6 +23,9 @@ import com.example.healthapp.database.goals.GoalsRepository
 import com.example.healthapp.database.schedule.WorkoutScheduleDao
 import com.example.healthapp.database.schedule.WorkoutScheduleDatabase
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
+import com.example.healthapp.database.sleep.SleepDailyDao
+import com.example.healthapp.database.sleep.SleepDailyDatabase
+import com.example.healthapp.database.sleep.SleepDailyRepository
 import com.example.healthapp.database.state.StateDao
 import com.example.healthapp.database.state.StateDatabase
 import com.example.healthapp.database.state.StateRepository
@@ -288,6 +291,28 @@ object AppModule {
             appContext,
             StateDatabase::class.java,
             "current_userstate_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSleepDailyDao(database: SleepDailyDatabase): SleepDailyDao {
+        return database.sleepDailyDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSleepDailyRepository(sleepDailyDao: SleepDailyDao): SleepDailyRepository {
+        return SleepDailyRepository(sleepDailyDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSleepDailyDatabase(@ApplicationContext appContext: Context): SleepDailyDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            SleepDailyDatabase::class.java,
+            "sleep_daily_database"
         ).build()
     }
 }
