@@ -63,7 +63,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
         }
 
         composable(route = BottomBarScreen.RateSleep.route) {
-            RateSleepContent(sleepRepository = sleepDailyRepository)
+            RateSleepContent(sleepRepository = sleepDailyRepository, navController = navController)
         }
 
 

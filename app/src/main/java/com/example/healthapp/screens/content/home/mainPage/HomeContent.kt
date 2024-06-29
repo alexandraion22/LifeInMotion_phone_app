@@ -290,7 +290,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .clip(RoundedCornerShape(24.dp))
                         .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
                         .background(color = Color.White)
-                        .clickable { navController.navigate("HOME/BPM") }
+                        .clickable { navController.navigate("SLEEP") }
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                         .verticalScroll(rememberScrollState()),
                     contentAlignment = Alignment.Center
@@ -347,7 +347,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .clip(RoundedCornerShape(24.dp))
                         .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
                         .background(color = Color.White)
-                        .clickable { navController.navigate("HOME/Steps") }
+                        .clickable { navController.navigate("WORKOUT") }
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {

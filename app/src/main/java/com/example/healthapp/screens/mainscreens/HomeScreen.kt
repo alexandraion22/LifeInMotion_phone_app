@@ -107,13 +107,13 @@ fun TopBar(navController: NavHostController = rememberNavController()) {
                         Column(
                             modifier = Modifier.padding(0.dp)
                         ) {
-                            DropdownMenuItem(
-                                onClick = { expanded = false
-                                    navController.navigate("SETTINGS") }
-                            ) {
-                                Text("Settings")
-                            }
-                            Divider()
+//                            DropdownMenuItem(
+//                                onClick = { expanded = false
+//                                    navController.navigate("SETTINGS") }
+//                            ) {
+//                                Text("Settings")
+//                            }
+//                            Divider()
                             DropdownMenuItem(
                                 onClick = {
                                     FirebaseAuth.getInstance().signOut()
