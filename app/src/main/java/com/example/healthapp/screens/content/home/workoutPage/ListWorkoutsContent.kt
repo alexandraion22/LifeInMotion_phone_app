@@ -79,10 +79,7 @@ fun ListWorkoutsContent(
     Log.e("HERE",isEditingId.toString())
     if(isEditingId!=-1){
         EditWorkoutContent(
-            workoutRepository =  workoutRepository ,
-            activityDailyRepository = activityDailyRepository,
-            caloriesDailyRepository = caloriesDailyRepository,
-            currentTime = currentTime,
+            workoutRepository =  workoutRepository,
             editingId = isEditingId
         ) {
             isEditingId = -1
@@ -132,11 +129,24 @@ fun ListWorkoutsContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (dayWorkouts.isEmpty()) {
-            Text(
-                text = "No workouts registered",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            Column {
+                Text(
+                    text = "No workouts registered",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End // Ensure items are aligned to the end
+                ) {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor = PsychedelicPurple),
+                        onClick = { isAdding = true }) {
+                        Text(text = "Add Workout")
+                    }
+                }
+            }
         } else {
             Column( modifier = Modifier
                 .fillMaxWidth()
@@ -481,20 +491,42 @@ fun AddWorkoutContent(workoutRepository: WorkoutRepository, activityDailyReposit
                             onClick = {
                                 val resultString = checkValues(minBpm,maxBpm,meanBpm,duration,burnedCalories)
                                 if (resultString.isEmpty()) {
-                                    val newWorkout = Workout (
-                                        minHR = minBpm.toInt(),
-                                        maxHR = maxBpm.toInt(),
-                                        meanHR = meanBpm.toInt(),
-                                        calories = burnedCalories.toInt(),
-                                        timestamp = startOfDay.toEpochMillis(),
-                                        duration = (duration.toInt() * 60000).toLong(),
-                                        confirmed = true,
-                                        autoRecorder = false,
-                                        type = workoutTypes[selectedIndex]
-                                    )
                                     scope.launch {
-                                        workoutRepository.insert(newWorkout)
-                                        updateActiveTimeAndCalories((duration.toInt() * 60000).toLong(), calories = burnedCalories.toInt(), caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, currentTime = currentTime)
+                                        withContext(Dispatchers.IO) {
+                                            val newWorkout = Workout (
+                                                minHR = minBpm.toInt(),
+                                                maxHR = maxBpm.toInt(),
+                                                meanHR = meanBpm.toInt(),
+                                                calories = burnedCalories.toInt(),
+                                                timestamp = startOfDay.toEpochMillis(),
+                                                duration = (duration.toInt() * 60000).toLong(),
+                                                confirmed = true,
+                                                autoRecorder = false,
+                                                type = workoutTypes[selectedIndex]
+                                            )
+                                            workoutRepository.insert(newWorkout)
+                                            activityDailyRepository.deleteEntryForDay(startOfDay.toEpochMillis())
+                                            caloriesDailyRepository.deleteEntryForDay(startOfDay.toEpochMillis())
+                                            val activityDaily =
+                                                activityDailyRepository.getEntryForDay(startOfDay.toEpochMillis())
+                                            val caloriesDaily =
+                                                caloriesDailyRepository.getEntryForDay(startOfDay.toEpochMillis())
+                                            val activeBefore = activityDaily?.activeTime ?: 0
+                                            val caloriesBefore = caloriesDaily?.totalCalories ?: 0
+                                            activityDailyRepository.update(
+                                                ActivityDaily(
+                                                    timestamp = startOfDay.toEpochMillis(),
+                                                    activeTime = (newWorkout.duration / 60000).toInt()
+                                                        .coerceAtMost(30) + activeBefore
+                                                )
+                                            )
+                                            caloriesDailyRepository.update(
+                                                CaloriesDaily(
+                                                    timestamp = startOfDay.toEpochMillis(),
+                                                    totalCalories = newWorkout.calories + caloriesBefore
+                                                )
+                                            )
+                                        }
                                     }
                                     func()
                                 } else {
@@ -532,7 +564,7 @@ fun AddWorkoutContent(workoutRepository: WorkoutRepository, activityDailyReposit
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
-fun EditWorkoutContent(workoutRepository: WorkoutRepository, activityDailyRepository: ActivityDailyRepository, caloriesDailyRepository: CaloriesDailyRepository, currentTime: LocalDateTime, editingId : Int, func : ()-> Unit) {
+fun EditWorkoutContent(workoutRepository: WorkoutRepository, editingId : Int, func : ()-> Unit) {
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -780,27 +812,4 @@ fun checkValues(minBpmString: String, maxBpmString: String, meanBpmString: Strin
         return "The calories burned must have a valid value."
     }
     return ""
-}
-
-@SuppressLint("NewApi")
-private fun updateActiveTimeAndCalories(duration: Long, calories: Int, activityDailyRepository: ActivityDailyRepository, caloriesDailyRepository: CaloriesDailyRepository, currentTime: LocalDateTime) {
-    CoroutineScope(Dispatchers.IO).launch {
-        val startOfDay =currentTime.withHour(0).withMinute(0).withSecond(0).withNano(0)
-        val activityDaily = activityDailyRepository.getEntryForDay(startOfDay.toEpochMillis())
-        val caloriesDaily = caloriesDailyRepository.getEntryForDay(startOfDay.toEpochMillis())
-        val activeBefore = activityDaily?.activeTime ?: 0
-        val caloriesBefore = caloriesDaily?.totalCalories ?: 0
-        activityDailyRepository.update(
-            ActivityDaily(
-                timestamp = startOfDay.toEpochMillis(),
-                activeTime = (duration / 60000).toInt().coerceAtMost(30) + activeBefore
-            )
-        )
-        caloriesDailyRepository.update(
-            CaloriesDaily(
-                timestamp = startOfDay.toEpochMillis(),
-                totalCalories = calories + caloriesBefore
-            )
-        )
-    }
 }

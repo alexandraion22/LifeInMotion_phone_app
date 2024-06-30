@@ -80,17 +80,13 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
     var stepsTodayNr by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) {
         val conditions = CustomModelDownloadConditions.Builder()
-            .requireWifi()  // Also possible: .requireCharging() and .requireDeviceIdle()
+            .requireWifi()
             .build()
         FirebaseModelDownloader.getInstance()
             .getModel("workout-classifier", DownloadType.LATEST_MODEL,
                 conditions)
             .addOnSuccessListener { model: CustomModel? ->
                 val modelFile = model?.file
-                if (modelFile != null) {
-                    Log.e("HERE1",modelFile.path)
-                }
-                Log.e("HERE2",modelFile.toString())
                 if (modelFile != null) {
                     val interpreter = Interpreter(modelFile)
                     val inputData = floatArrayOf(88f/198f,59f/198f,114f/198f,4.7196f)
@@ -117,10 +113,6 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
             .addOnSuccessListener { model: CustomModel? ->
                 val modelFile = model?.file
                 if (modelFile != null) {
-                    Log.e("HERE1",modelFile.path)
-                }
-                Log.e("HERE2",modelFile.toString())
-                if (modelFile != null) {
                     val interpreter = Interpreter(modelFile)
                     val inputData = floatArrayOf(6.0f, 18f, 70f, 12f)
 
@@ -141,7 +133,6 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                     val outputData = modelOutput.asFloatBuffer().get(0)
                     Log.e("TAG", outputData.toString())
                 }
-
             }
             .addOnFailureListener {exception ->
                 Log.e("ModelDownload", "Failed to download model", exception)
@@ -482,7 +473,6 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         .clip(RoundedCornerShape(24.dp))
                         .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
                         .background(color = Color.White)
-                        .clickable { navController.navigate("HOME/Steps") }
                         .padding(6.dp),
                     contentAlignment = Alignment.Center,
                 )
@@ -492,34 +482,67 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                         horizontalAlignment = Alignment.Start
                     ) {
 
-                        Row {
-                            Column{
-                                Text(
-                                    text = "Streak",
-                                    fontSize = 24.sp
-                                )
-                                Text(
-                                    text = "Well done",
-                                    fontSize = 14.sp
+                        if (stepsTodayNr >= (goals?.stepsGoal ?: 0) &&
+                            activityToday >= (goals?.activityGoal ?: 0) &&
+                            caloriesToday >= (goals?.caloriesGoal ?: 0)
+                        ) {
+                            Row {
+                                Column {
+                                    Text(
+                                        text = "Streak",
+                                        fontSize = 24.sp
+                                    )
+                                    Text(
+                                        text = "Well done",
+                                        fontSize = 14.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                Image(
+                                    painter = rememberImagePainter(
+                                        data = R.drawable.streak
+                                    ),
+                                    contentDescription = "Thumbnail",
+                                    modifier = Modifier
+                                        .height(36.dp)
                                 )
                             }
-                            Spacer(modifier = Modifier.weight(1f))
-                            Image(
-                                painter = rememberImagePainter(
-                                    data = R.drawable.streak
-                                ),
-                                contentDescription = "Thumbnail",
-                                modifier = Modifier
-                                    .height(36.dp)
+                            Text(
+                                text = "You’ve kept your healthy streak for 2 days",
+                                fontSize = 14.sp
+
                             )
                         }
-                        Text(
-                            text = "You’ve kept your healthy streak for 2 days",
-                            fontSize = 14.sp
+                        else
+                        {
+                            Row {
+                                Column {
+                                    Text(
+                                        text = "Streak",
+                                        fontSize = 24.sp
+                                    )
+                                    Text(
+                                        text = "Oh no!",
+                                        fontSize = 14.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                Image(
+                                    painter = rememberImagePainter(
+                                        data = R.drawable.streak
+                                    ),
+                                    contentDescription = "Thumbnail",
+                                    modifier = Modifier
+                                        .height(36.dp)
+                                )
+                            }
+                            Text(
+                                text = "You currently don't have a habits streak.",
+                                fontSize = 14.sp
 
-                        )
+                            )
+                        }
                     }
-
                 }
             }
         }

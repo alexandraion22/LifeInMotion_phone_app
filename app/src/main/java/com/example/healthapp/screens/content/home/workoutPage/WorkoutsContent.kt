@@ -126,7 +126,8 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navCon
                             )
                             Spacer(modifier = Modifier.weight(1f)) // Add space between columns
                             Text(
-                                text = formatWorkoutDuration(workoutDurationTotal),                                color = Color.White,
+                                text = formatWorkoutDuration(workoutDurationTotal),
+                                color = Color.White,
                                 fontSize = textSize
                             )
                         }

@@ -113,7 +113,7 @@ fun BpmContent(
                 .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.85f)
                 .clip(RoundedCornerShape(24.dp))
-                .border(1.dp, KindaLightGray, RoundedCornerShape(24.dp))
+                .border(2.dp, KindaLightGray, RoundedCornerShape(24.dp))
                 .background(Color.White)
                 .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -233,7 +233,7 @@ fun BarChartHourly(bpmList: List<BpmHourly>, colorOnPrimary: Color) {
             val paint = Paint().asFrameworkPaint().apply {
                 color = Color.Gray.toArgb()
                 strokeWidth = 2f
-                pathEffect = android.graphics.DashPathEffect(floatArrayOf(10f, 10f), 0f) // Dotted effect
+                pathEffect = android.graphics.DashPathEffect(floatArrayOf(10f, 20f), 0f) // Dotted effect
             }
 
             levels.forEach { bpmLevel ->
@@ -345,7 +345,7 @@ fun BarChart7Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
             val paint = Paint().asFrameworkPaint().apply {
                 color = Color.Gray.toArgb()
                 strokeWidth = 2f
-                pathEffect = android.graphics.DashPathEffect(floatArrayOf(10f, 10f), 0f) // Dotted effect
+                pathEffect = android.graphics.DashPathEffect(floatArrayOf(10f, 20f), 0f) // Dotted effect
             }
 
             levels.forEach { bpmLevel ->
@@ -464,7 +464,7 @@ fun BarChart31Days(bpmList: List<BpmDaily>, colorOnPrimary: Color) {
             val paint = Paint().asFrameworkPaint().apply {
                 color = Color.Gray.toArgb()
                 strokeWidth = 2f
-                pathEffect = android.graphics.DashPathEffect(floatArrayOf(10f, 10f), 0f) // Dotted effect
+                pathEffect = android.graphics.DashPathEffect(floatArrayOf(10f, 20f), 0f) // Dotted effect
             }
 
             levels.forEach { bpmLevel ->

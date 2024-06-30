@@ -13,8 +13,8 @@ interface SleepDailyDao {
     @Query("SELECT * FROM sleep_table WHERE timestampStart >= :previousDay8Pm AND timestampStart <= :today8Pm")
     suspend fun getEntriesForDay(previousDay8Pm: Long, today8Pm: Long): List<SleepDaily>
 
-    @Query("SELECT * FROM sleep_table WHERE timestampStart >= :startOfWeek")
-    suspend fun getAllPast7days(startOfWeek: Long): List<SleepDaily>
+    @Query("SELECT * FROM sleep_table WHERE timestampStart >= :startOfWeek AND timestampStart <= :today8Pm")
+    suspend fun getAllPast7days(startOfWeek: Long, today8Pm: Long): List<SleepDaily>
 
     @Query("DELETE FROM sleep_table WHERE id == :idGiven")
     suspend fun deleteEntryForId(idGiven: Int)

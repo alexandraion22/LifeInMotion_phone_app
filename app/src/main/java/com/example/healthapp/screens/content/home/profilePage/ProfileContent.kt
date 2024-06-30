@@ -1,5 +1,7 @@
 package com.example.healthapp.screens.content.home.profilePage
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -18,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,19 +32,40 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.healthapp.R
+import com.example.healthapp.database.sleep.SleepDaily
+import com.example.healthapp.database.sleep.SleepDailyRepository
 import com.example.healthapp.database.users.User
 import com.example.healthapp.database.users.UserViewModel
+import com.example.healthapp.database.workouts.Workout
+import com.example.healthapp.database.workouts.WorkoutRepository
+import com.example.healthapp.service.toEpochMillis
 import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.VeryLightGray
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ProfileContent(navController: NavHostController, userViewModel: UserViewModel) {
+fun ProfileContent(navController: NavHostController, userViewModel: UserViewModel, sleepRepository: SleepDailyRepository, workoutRepository: WorkoutRepository) {
     val scope = rememberCoroutineScope()
     val colorOnPrimary = colors.onPrimary
+    var sleepList7Days by remember { mutableStateOf<List<SleepDaily>>(emptyList()) }
+    var workoutList7Days by remember { mutableStateOf<List<Workout>>(emptyList()) }
+    val currentTime = LocalDateTime.now()
+    val startOfNextDay8Pm = currentTime.plusDays(0).withHour(20).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
+    val startOfWeek8Pm = currentTime.minusDays(6).withHour(20).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
+    val startOfNextDay = currentTime.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
+    val startOfWeek = currentTime.minusDays(6).withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
+
     var user by remember { mutableStateOf<User?>(null) }
     var bmiColor by remember { mutableStateOf(colorOnPrimary) }
     var activityColor by remember { mutableStateOf(colorOnPrimary) }
+    var finalActivityValue by remember { mutableIntStateOf(0) }
+    var averageActiveTime by remember { mutableStateOf("0h 0min") }
+    var averageSleepTime by remember { mutableStateOf("0h 0min") }
+
     LaunchedEffect(Unit) {
         scope.launch {
             user = userViewModel.getUser()
@@ -53,13 +77,41 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
                 bmi < 34.9 -> Color(0xFFE89323)
                 else -> Color(0XFFC4311D)
             }
-            val activityLevel : Int = user?.activityLevel ?:0
+            sleepList7Days = withContext(Dispatchers.IO) {
+                sleepRepository.getAllPast7days(startOfWeek8Pm, startOfNextDay8Pm)
+            }
+            workoutList7Days = withContext(Dispatchers.IO) {
+                workoutRepository.getAllPast7days(startOfWeek, startOfNextDay)
+            }
+
+            // Calculate the total duration of workouts in milliseconds
+            val totalWorkoutDurationMillis = workoutList7Days.sumOf { it.duration }
+            // Convert milliseconds to hours and minutes
+            val totalWorkoutDurationMinutes = totalWorkoutDurationMillis / (1000 * 60) / 7
+            val hours = totalWorkoutDurationMinutes / 60
+            val minutes = totalWorkoutDurationMinutes % 60
+            averageActiveTime = "${hours}h ${minutes}min"
+
+            val activityLevel: Int = user?.activityLevel ?: 0
             activityColor = when {
-                activityLevel == 0 -> Color(0xFFE89323)
-                activityLevel == 1 -> Color(0XFFEBCB65)
-                activityLevel == 2 -> Color(0XFF56B4E3)
+                totalWorkoutDurationMinutes < 30 -> Color(0xFFE89323)
+                totalWorkoutDurationMinutes in 30..59 -> Color(0XFFEBCB65)
+                totalWorkoutDurationMinutes in 60..89 -> Color(0XFF56B4E3)
                 else -> Color(0XFF20A072)
             }
+            finalActivityValue = when {
+                totalWorkoutDurationMinutes < 30 -> 0
+                totalWorkoutDurationMinutes in 30..59 -> 1
+                totalWorkoutDurationMinutes in 60..89 -> 2
+                else -> 3
+            }
+
+            // Calculate average sleep time in a similar way
+            val totalSleepDurationMinutes = sleepList7Days.sumOf { it.REMDuration + it.lightDuration + it.deepDuration } / 7
+            val sleepHours = totalSleepDurationMinutes / 60
+            val sleepMinutes = totalSleepDurationMinutes % 60
+            averageSleepTime = "${sleepHours}h ${sleepMinutes}min"
+
         }
     }
 
@@ -122,14 +174,12 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
                         Spacer(modifier = Modifier.height(14.dp))
                         Row(verticalAlignment = Alignment.Bottom) {
                             Text(text = "Activity Level: ", fontSize = 19.sp)
-                            user?.activityLevel?.let {activityLevel ->
-                                val activityLevelValue = activityLevelMap[activityLevel] ?: 0
+                                val activityLevelValue = activityLevelMap[finalActivityValue] ?: 0
                                 Text(
-                                    text = "$activityLevel ($activityLevelValue)", // Display both the level and the value
-                                    fontSize = 21.sp,
+                                    text = "$finalActivityValue ($activityLevelValue)", // Display both the level and the value
+                                    fontSize = 18.sp,
                                     color = activityColor
                                 )
-                            }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -193,7 +243,7 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
-                            "2h 3min",
+                            averageActiveTime,
                             fontSize = 20.sp
                         )
                     }
@@ -208,7 +258,7 @@ fun ProfileContent(navController: NavHostController, userViewModel: UserViewMode
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
-                            "8h 20min",
+                            averageSleepTime,
                             fontSize = 20.sp
                         )
                     }

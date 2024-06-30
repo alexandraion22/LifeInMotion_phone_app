@@ -28,6 +28,7 @@ import com.example.healthapp.screens.content.home.profilePage.ProfileSettingsCon
 import com.example.healthapp.screens.content.home.ScreenContent
 import com.example.healthapp.screens.content.home.workoutPage.WorkoutsContent
 import com.example.healthapp.screens.content.home.mainPage.StepsContent
+import com.example.healthapp.screens.content.home.sleepPage.IndividualSleepContent
 import com.example.healthapp.screens.content.home.sleepPage.RateSleepContent
 import com.example.healthapp.screens.content.home.sleepPage.SleepContent
 import com.example.healthapp.screens.content.home.workoutPage.AddWorkoutContent
@@ -55,7 +56,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
         }
 
         composable(route = BottomBarScreen.Profile.route) {
-            ProfileContent(navController = navController, userViewModel = userViewModel)
+            ProfileContent(navController = navController, userViewModel = userViewModel, sleepRepository = sleepDailyRepository, workoutRepository = workoutRepository)
         }
 
         composable(route = BottomBarScreen.Sleep.route) {
@@ -66,6 +67,9 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
             RateSleepContent(sleepRepository = sleepDailyRepository, navController = navController)
         }
 
+        composable(route = BottomBarScreen.IndividualSleep.route) {
+            IndividualSleepContent(sleepDailyRepository = sleepDailyRepository)
+        }
 
         composable(route = BottomBarScreen.Bpm.route) {
             BpmContent(bpmHourlyRepository = bpmHourlyRepository, bpmDailyRepository = bpmDailyRepository)
