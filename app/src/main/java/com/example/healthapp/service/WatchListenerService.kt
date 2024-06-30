@@ -18,6 +18,8 @@ import com.example.healthapp.database.bpm.last.Bpm
 import com.example.healthapp.database.bpm.last.BpmRepository
 import com.example.healthapp.database.calories.CaloriesDaily
 import com.example.healthapp.database.calories.CaloriesDailyRepository
+import com.example.healthapp.database.sleep.SleepDaily
+import com.example.healthapp.database.sleep.SleepDailyRepository
 import com.example.healthapp.database.state.State
 import com.example.healthapp.database.state.StateRepository
 import com.example.healthapp.database.steps.daily.StepsDaily
@@ -38,6 +40,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.random.Random
 
 @AndroidEntryPoint
 class WatchListenerService: WearableListenerService() {
@@ -69,6 +72,8 @@ class WatchListenerService: WearableListenerService() {
     @Inject
     lateinit var caloriesDailyRepository: CaloriesDailyRepository
 
+    @Inject
+    lateinit var sleepDailyRepository: SleepDailyRepository
     override fun onCreate() {
         super.onCreate()
     }
@@ -286,6 +291,7 @@ class WatchListenerService: WearableListenerService() {
                             else
                             {
                                 stateRepository.updateIsWalking(state.id, true)
+                                stateRepository.updateTimestampStartedWorkout(state.id, LocalDateTime.now().toEpochMillis())
                                 stateRepository.updateCaloriesConsumedBpm(
                                     state.id,
                                     (0.035 * (state.stepsLast8Minutes + state.stepsLast4Minutes)).toInt()
@@ -365,7 +371,9 @@ class WatchListenerService: WearableListenerService() {
                             Log.e("SLEEP", "Woke up from N1 with bpm:$bpm")
                             if (state.sleepCycle > 0) {
                                 Log.e("SLEEP","Add sleep to database")
-                                workoutRepository.insert(Workout(timestamp = LocalDateTime.now().toEpochMillis(), calories = state.timeLightSleep, duration = state.timeDeepSleep.toLong(), type = state.timeREM.toString(), maxHR = state.timeREM, autoRecorder = false, meanHR = state.sleepCycle, minHR = 0, confirmed = false))
+
+                                val startOfSleep =  LocalDateTime.now().toEpochMillis() - (state.timeDeepSleep+state.timeLightSleep+state.timeREM) * 60000
+                                sleepDailyRepository.insert(SleepDaily(timestampStart = startOfSleep, REMDuration = state.timeREM, lightDuration = state.timeLightSleep, deepDuration = state.timeDeepSleep, cycles = state.sleepCycle, givenScore = 100, automaticScore = calculateSleepScore(), awakenings =  Random.nextInt(1, 5)))
                             }
                             finishSleep(state)
                         }
@@ -387,7 +395,8 @@ class WatchListenerService: WearableListenerService() {
                                 Log.e("SLEEP", "Woke up from N1 with bpm:$bpm")
                                 if (state.sleepCycle > 0) {
                                     Log.e("SLEEP","Add sleep to database")
-                                    workoutRepository.insert(Workout(timestamp = LocalDateTime.now().toEpochMillis(), calories = state.timeLightSleep, duration = state.timeDeepSleep.toLong(), type = state.timeREM.toString(), maxHR = state.timeREM, autoRecorder = false, meanHR = 0, minHR = 0, confirmed = false))
+                                    val startOfSleep =  LocalDateTime.now().toEpochMillis() - (state.timeDeepSleep+state.timeLightSleep+state.timeREM) * 60000
+                                    sleepDailyRepository.insert(SleepDaily(timestampStart = startOfSleep, REMDuration = state.timeREM, lightDuration = state.timeLightSleep, deepDuration = state.timeDeepSleep, cycles = state.sleepCycle, givenScore = 100, automaticScore = calculateSleepScore(), awakenings =  Random.nextInt(1, 5)))
                                 }
                                 finishSleep(state)
                             }
@@ -405,7 +414,8 @@ class WatchListenerService: WearableListenerService() {
                             Log.e("SLEEP", "Woke up from N2 with bpm:$bpm")
                             if (state.sleepCycle > 0) {
                                 Log.e("SLEEP","Add sleep to database")
-                                workoutRepository.insert(Workout(timestamp = LocalDateTime.now().toEpochMillis(), calories = state.timeLightSleep, duration = state.timeDeepSleep.toLong(), type = state.timeREM.toString(), maxHR = state.timeREM, autoRecorder = false, meanHR = 0, minHR = 0, confirmed = false))
+                                val startOfSleep =  LocalDateTime.now().toEpochMillis() - (state.timeDeepSleep+state.timeLightSleep+state.timeREM) * 60000
+                                sleepDailyRepository.insert(SleepDaily(timestampStart = startOfSleep, REMDuration = state.timeREM, lightDuration = state.timeLightSleep, deepDuration = state.timeDeepSleep, cycles = state.sleepCycle, givenScore = 100, automaticScore = calculateSleepScore(), awakenings =  Random.nextInt(1, 5)))
                             }
                             finishSleep(state)
                         }
@@ -426,7 +436,8 @@ class WatchListenerService: WearableListenerService() {
                             Log.e("SLEEP", "Woke up from REM with bpm:$bpm")
                             if (state.sleepCycle > 0) {
                                 Log.e("SLEEP","Add sleep to database")
-                                workoutRepository.insert(Workout(timestamp = LocalDateTime.now().toEpochMillis(), calories = state.timeLightSleep, duration = state.timeDeepSleep.toLong(), type = state.timeREM.toString(), maxHR = state.timeREM, autoRecorder = false, meanHR = 0, minHR = 0, confirmed = false))
+                                val startOfSleep =  LocalDateTime.now().toEpochMillis() - (state.timeDeepSleep+state.timeLightSleep+state.timeREM) * 60000
+                                sleepDailyRepository.insert(SleepDaily(timestampStart = startOfSleep, REMDuration = state.timeREM, lightDuration = state.timeLightSleep, deepDuration = state.timeDeepSleep, cycles = state.sleepCycle, givenScore = 100, automaticScore = calculateSleepScore(), awakenings =  Random.nextInt(1, 5)))
                             }
                             finishSleep(state)
                         }
@@ -439,6 +450,10 @@ class WatchListenerService: WearableListenerService() {
                 }
             }
         }
+    }
+
+    private fun calculateSleepScore(): Int {
+        return 0
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

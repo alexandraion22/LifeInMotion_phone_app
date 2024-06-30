@@ -12,8 +12,8 @@ class SleepDailyRepository @Inject constructor(private val sleepDailyDao: SleepD
         sleepDailyDao.deleteAll()
     }
 
-    suspend fun getEntriesForDay(previousDay8Pm: Long): List<SleepDaily> {
-        return sleepDailyDao.getEntriesForDay(previousDay8Pm = previousDay8Pm)
+    suspend fun getEntriesForDay(previousDay8Pm: Long, today8Pm: Long): List<SleepDaily> {
+        return sleepDailyDao.getEntriesForDay(previousDay8Pm = previousDay8Pm, today8Pm = today8Pm)
     }
 
     suspend fun getAllPast7days(startOfWeek8Pm: Long): List<SleepDaily> {
@@ -30,5 +30,9 @@ class SleepDailyRepository @Inject constructor(private val sleepDailyDao: SleepD
 
     suspend fun deleteEntryForId(idGiven: Int){
         sleepDailyDao.deleteEntryForId(idGiven)
+    }
+
+    suspend fun getAll(): List<SleepDaily> {
+        return sleepDailyDao.getAll()
     }
 }

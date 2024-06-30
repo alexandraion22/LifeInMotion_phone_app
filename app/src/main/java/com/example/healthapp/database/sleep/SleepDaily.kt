@@ -8,8 +8,10 @@ data class SleepDaily(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val timestampStart: Long,
     val REMDuration: Int,
-    val LightDuration: Int,
-    val DeepDuration: Int,
+    val lightDuration: Int,
+    val deepDuration: Int,
     val givenScore: Int,
-    val automaticScore: Int
+    val automaticScore: Int,
+    val cycles: Int,
+    val awakenings: Int
 )

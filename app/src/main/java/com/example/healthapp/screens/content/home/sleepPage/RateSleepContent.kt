@@ -61,7 +61,7 @@ fun RateSleepContent(
                     .padding(start = 22.dp, top = 32.dp, end = 22.dp)
             )
             {
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(54.dp))
                 Text(
                     text = "Sleep rating",
                     fontSize = 32.sp,
@@ -96,7 +96,6 @@ fun RateSleepContent(
                                 activeTrackColor = PsychedelicPurple
                             )
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
                         Row (modifier = Modifier.fillMaxWidth(0.95f)){
                             Text(text = "1")
                             Spacer(modifier = Modifier.weight(1f))

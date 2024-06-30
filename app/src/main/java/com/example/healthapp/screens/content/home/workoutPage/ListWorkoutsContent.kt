@@ -361,7 +361,7 @@ fun AddWorkoutContent(workoutRepository: WorkoutRepository, activityDailyReposit
     var meanBpm by remember { mutableStateOf("") }
     var maxBpm by remember { mutableStateOf("") }
     val workoutTypes = listOf("circuit_training", "pilates","weights","aerobic","run","walk")
-    val workoutNames = listOf("Circuit Training", "Pilates","Weightlifting","Aerobic","Run","Walk")
+    val workoutNames = listOf("Circuit Training", "Pilates","Weightlifting","Aerobic","Run","Walking")
     var duration by remember { mutableStateOf("") }
     var burnedCalories  by remember { mutableStateOf("") }
     val meanBpmFocusRequester = remember { FocusRequester() }
@@ -540,7 +540,7 @@ fun EditWorkoutContent(workoutRepository: WorkoutRepository, activityDailyReposi
     var meanBpm by remember { mutableStateOf("") }
     var maxBpm by remember { mutableStateOf("") }
     val workoutTypes = listOf("circuit_training", "pilates","weights","aerobic","run","walk")
-    val workoutNames = listOf("Circuit Training", "Pilates","Weightlifting","Aerobic","Run","Walk")
+    val workoutNames = listOf("Circuit Training", "Pilates","Weightlifting","Aerobic","Run","Walking")
     var duration by remember { mutableStateOf("") }
     var burnedCalories  by remember { mutableStateOf("") }
     val meanBpmFocusRequester = remember { FocusRequester() }

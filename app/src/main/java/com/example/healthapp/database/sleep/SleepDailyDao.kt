@@ -10,8 +10,8 @@ interface SleepDailyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(sleepDaily: SleepDaily)
 
-    @Query("SELECT * FROM sleep_table WHERE timestampStart >= :previousDay8Pm")
-    suspend fun getEntriesForDay(previousDay8Pm: Long): List<SleepDaily>
+    @Query("SELECT * FROM sleep_table WHERE timestampStart >= :previousDay8Pm AND timestampStart <= :today8Pm")
+    suspend fun getEntriesForDay(previousDay8Pm: Long, today8Pm: Long): List<SleepDaily>
 
     @Query("SELECT * FROM sleep_table WHERE timestampStart >= :startOfWeek")
     suspend fun getAllPast7days(startOfWeek: Long): List<SleepDaily>
@@ -27,4 +27,7 @@ interface SleepDailyDao {
 
     @Query("DELETE FROM sleep_table")
     suspend fun deleteAll()
+
+    @Query("SELECT * FROM sleep_table")
+    suspend fun getAll(): List<SleepDaily>
 }

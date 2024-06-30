@@ -40,6 +40,8 @@ import coil.compose.rememberImagePainter
 import com.example.healthapp.R
 import com.example.healthapp.database.schedule.WorkoutSchedule
 import com.example.healthapp.database.schedule.WorkoutScheduleRepository
+import com.example.healthapp.database.sleep.SleepDaily
+import com.example.healthapp.database.sleep.SleepDailyRepository
 import com.example.healthapp.database.workouts.Workout
 import com.example.healthapp.database.workouts.WorkoutRepository
 import com.example.healthapp.service.toEpochMillis
@@ -51,6 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import kotlin.math.floor
+import kotlin.random.Random
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -62,10 +65,9 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navCon
     val workoutSchedules = remember { List(8) { mutableStateOf<Set<String>>(emptySet()) } }
     var workoutsDoneSet by remember { mutableStateOf<Set<String>>(emptySet()) }
     var workoutsDone by remember { mutableStateOf<List<Workout>>(emptyList()) }
-
     var workoutDurationTotal by remember { mutableIntStateOf(0) }
     var workoutCaloriesTotal by remember { mutableIntStateOf(0) }
-    var currentTime by remember { mutableStateOf(LocalDateTime.now()) }
+    val currentTime by remember { mutableStateOf(LocalDateTime.now()) }
     val startOfDay = currentTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
     val startOfNextDay = currentTime.plusDays(1).withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
 
@@ -74,6 +76,7 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navCon
             workoutsDone = withContext(Dispatchers.IO) {
                 workoutRepository.getEntriesForDay(startOfDay, startOfNextDay)
             }
+
             workoutsDoneSet = workoutsDone.map { it.type }.toSet()
             workoutDurationTotal = ((workoutsDone.sumOf { it.duration })/60000).toInt()
             workoutCaloriesTotal = workoutsDone.sumOf { it.calories }
@@ -82,7 +85,6 @@ fun WorkoutsContent(workoutScheduleRepository: WorkoutScheduleRepository, navCon
                         workoutScheduleRepository.getListForDay(day)?.workouts ?: emptySet()
                 }
             }
-            Log.e("TAG",workoutsDone.toString())
         }
         Box(
             modifier = Modifier.fillMaxHeight(0.94f).background(color = VeryLightGray)

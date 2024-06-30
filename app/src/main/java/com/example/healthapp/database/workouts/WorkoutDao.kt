@@ -30,4 +30,7 @@ interface WorkoutDao {
 
     @Query("SELECT * FROM workouts_table WHERE id = :id")
     suspend fun getEntryById(id: Int): Workout?
+
+    @Query("SELECT * FROM workouts_table")
+    suspend fun getAll(): List<Workout>
 }

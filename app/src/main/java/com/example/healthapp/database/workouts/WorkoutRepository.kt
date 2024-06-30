@@ -24,6 +24,10 @@ class WorkoutRepository @Inject constructor(private val workoutDao: WorkoutDao) 
         return workoutDao.getAllPast31days(startOfMonth, startOfNextMonth)
     }
 
+    suspend fun getAll(): List<Workout> {
+        return workoutDao.getAll()
+    }
+
     suspend fun deleteEntryById(id: Int) {
         workoutDao.deleteWorkoutById(id)
     }
