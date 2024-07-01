@@ -50,6 +50,8 @@ import com.example.healthapp.database.activity.ActivityDailyRepository
 import com.example.healthapp.database.calories.CaloriesDailyRepository
 import com.example.healthapp.database.goals.Goals
 import com.example.healthapp.database.goals.GoalsRepository
+import com.example.healthapp.database.sleep.SleepDaily
+import com.example.healthapp.database.sleep.SleepDailyRepository
 import com.example.healthapp.ui.theme.DarkPurple
 import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.LightPurple
@@ -65,7 +67,7 @@ import java.nio.ByteOrder
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository, caloriesDailyRepository: CaloriesDailyRepository, activityDailyRepository: ActivityDailyRepository, goalsRepository: GoalsRepository) {
+fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, stepsDailyRepository: StepsDailyRepository, bpmRepository: BpmRepository, caloriesDailyRepository: CaloriesDailyRepository, activityDailyRepository: ActivityDailyRepository, goalsRepository: GoalsRepository, sleepRepository: SleepDailyRepository) {
     val scope = rememberCoroutineScope()
     var fullName by remember { mutableStateOf("") }
     var stepsToday by remember { mutableStateOf<StepsDaily?>(null) }
@@ -78,65 +80,12 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
     var activityToday by remember { mutableIntStateOf(0) }
     var goals by remember { mutableStateOf<Goals?>(null) }
     var stepsTodayNr by remember { mutableIntStateOf(0) }
+    var allSleeps by remember { mutableStateOf<List<SleepDaily>>(emptyList()) }
+    var todaysSleep by remember { mutableStateOf<SleepDaily?>(null) }
+    val timeYesterday8Pm = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis() - 240000
+    val timeToday8Pm = LocalDateTime.now().withHour(20).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
+    var sleepScoreToday by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) {
-        val conditions = CustomModelDownloadConditions.Builder()
-            .requireWifi()
-            .build()
-        FirebaseModelDownloader.getInstance()
-            .getModel("workout-classifier", DownloadType.LATEST_MODEL,
-                conditions)
-            .addOnSuccessListener { model: CustomModel? ->
-                val modelFile = model?.file
-                if (modelFile != null) {
-                    val interpreter = Interpreter(modelFile)
-                    val inputData = floatArrayOf(88f/198f,59f/198f,114f/198f,4.7196f)
-                    // Convert the input data to ByteBuffer
-                    val inputBuffer = ByteBuffer.allocateDirect(4 * inputData.size)
-                    inputBuffer.order(ByteOrder.nativeOrder())
-                    inputBuffer.asFloatBuffer().put(inputData)
-                    val bufferSize = 4 * java.lang.Float.SIZE / java.lang.Byte.SIZE
-                    val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
-                    interpreter.run(inputBuffer, modelOutput)
-                    modelOutput.rewind()
-                    val outputShape = intArrayOf(1, 4)
-                    val outputData = FloatArray(outputShape[1])
-                    modelOutput.asFloatBuffer().get(outputData)
-                    outputData.forEach { Log.e("HERE",it.toString()) }
-                }
-            }
-            .addOnFailureListener {exception ->
-                Log.e("ModelDownload", "Failed to download model", exception)
-            }
-        FirebaseModelDownloader.getInstance()
-            .getModel("sleep-efficiency", DownloadType.LATEST_MODEL,
-                conditions)
-            .addOnSuccessListener { model: CustomModel? ->
-                val modelFile = model?.file
-                if (modelFile != null) {
-                    val interpreter = Interpreter(modelFile)
-                    val inputData = floatArrayOf(6.0f, 18f, 70f, 12f)
-
-                    // Convert the input data to ByteBuffer
-                    val inputBuffer = ByteBuffer.allocateDirect(4 * inputData.size)
-                    inputBuffer.order(ByteOrder.nativeOrder())
-                    inputBuffer.asFloatBuffer().put(inputData)
-
-                    // Allocate buffer for the output (single float)
-                    val bufferSize = 4 // Size of a float in bytes
-                    val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
-
-                    // Run the model
-                    interpreter.run(inputBuffer, modelOutput)
-
-                    // Rewind and extract the float output
-                    modelOutput.rewind()
-                    val outputData = modelOutput.asFloatBuffer().get(0)
-                    Log.e("TAG", outputData.toString())
-                }
-            }
-            .addOnFailureListener {exception ->
-                Log.e("ModelDownload", "Failed to download model", exception)
-            }
         scope.launch {
             user = userViewModel.getUser()
             fullName = user?.fullName ?: "User"
@@ -158,6 +107,13 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
         goals = withContext(Dispatchers.IO) {
             goalsRepository.getFirst()
         }
+        allSleeps = withContext(Dispatchers.IO) {
+            sleepRepository.getEntriesForDay(timeYesterday8Pm,timeToday8Pm)
+        }
+        if(allSleeps.isNotEmpty())
+            todaysSleep = allSleeps[0]
+        if(todaysSleep!=null)
+            sleepScoreToday = todaysSleep!!.automaticScore
     }
 
     Box(
@@ -305,7 +261,7 @@ fun HomeContent(navController: NavHostController, userViewModel: UserViewModel, 
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = "95",
+                                    text = sleepScoreToday.toString(),
                                     fontSize = 28.sp, // Adjusted font size for the number
                                     fontWeight = FontWeight.Bold,
                                     color = colors.onPrimary

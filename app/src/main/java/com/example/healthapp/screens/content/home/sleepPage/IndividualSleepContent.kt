@@ -48,10 +48,20 @@ import com.example.healthapp.service.toEpochMillis
 import com.example.healthapp.ui.theme.KindaLightGray
 import com.example.healthapp.ui.theme.PsychedelicPurple
 import com.example.healthapp.ui.theme.VeryLightGray
+import com.google.firebase.ml.modeldownloader.CustomModel
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
+import com.google.firebase.ml.modeldownloader.DownloadType
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.tensorflow.lite.Interpreter
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
 
 @SuppressLint("NewApi")
@@ -60,20 +70,36 @@ fun IndividualSleepContent(
     sleepDailyRepository: SleepDailyRepository
 ) {
 
+    val coroutineScope = rememberCoroutineScope()
     var currentTime by remember { mutableStateOf(LocalDateTime.now()) }
     var allSleeps by remember { mutableStateOf<List<SleepDaily>>(emptyList()) }
     var todaysSleep by remember { mutableStateOf<SleepDaily?>(null) }
-
     LaunchedEffect(currentTime) {
         val timeYesterday8Pm = currentTime.withHour(0).withMinute(0).withSecond(0).withNano(0).toEpochMillis() - 240000
         val timeToday8Pm = currentTime.withHour(20).withMinute(0).withSecond(0).withNano(0).toEpochMillis()
         allSleeps = withContext(Dispatchers.IO) {
             sleepDailyRepository.getEntriesForDay(timeYesterday8Pm,timeToday8Pm)
         }
-        if(allSleeps.isNotEmpty())
-            todaysSleep = allSleeps[0]
+        todaysSleep = if(allSleeps.isNotEmpty())
+            allSleeps[0]
         else
-            todaysSleep = null
+            null
+        if(todaysSleep!=null){
+            calculateSleepScore(
+                todaysSleep!!.REMDuration,
+                todaysSleep!!.deepDuration,
+                todaysSleep!!.lightDuration,
+                object : SleepScoreCallback {
+                    override fun onSleepScoreCalculated(score: Int) {
+                        coroutineScope.launch {
+                            withContext(Dispatchers.IO) {
+                                sleepDailyRepository.updateAutomaticScore(todaysSleep!!.id, score)
+                                todaysSleep = sleepDailyRepository.getEntriesForDay(timeYesterday8Pm, timeToday8Pm)[0]
+                            }
+                        }
+                    }
+                })
+        }
     }
 
     Column(modifier = Modifier
@@ -131,4 +157,59 @@ fun IndividualSleepContent(
             }
         }
     }
+}
+
+private fun calculateSleepScore(remDuration: Int, deepDuration: Int, lightDuration: Int, callback: SleepScoreCallback) {
+    val conditions = CustomModelDownloadConditions.Builder()
+        .requireWifi()
+        .build()
+
+    FirebaseModelDownloader.getInstance()
+        .getModel(
+            "sleep-efficiency", DownloadType.LATEST_MODEL,
+            conditions
+        )
+        .addOnSuccessListener { model: CustomModel? ->
+            val modelFile = model?.file
+            if (modelFile != null) {
+                val interpreter = Interpreter(modelFile)
+                val totalDuration = remDuration + deepDuration + lightDuration
+                val remPercentage = remDuration / totalDuration.toFloat() * 100
+                val deepPercentage = deepDuration / totalDuration.toFloat() * 100
+                val lightPercentage = lightDuration / totalDuration.toFloat() * 100
+                val inputData = floatArrayOf(
+                    totalDuration / 60f,
+                    remPercentage,
+                    deepPercentage,
+                    lightPercentage
+                )
+
+                // Convert the input data to ByteBuffer
+                val inputBuffer = ByteBuffer.allocateDirect(4 * inputData.size)
+                inputBuffer.order(ByteOrder.nativeOrder())
+                inputBuffer.asFloatBuffer().put(inputData)
+
+                // Allocate buffer for the output (single float)
+                val bufferSize = 4 // Size of a float in bytes
+                val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
+
+                // Run the model
+                interpreter.run(inputBuffer, modelOutput)
+
+                // Rewind and extract the float output
+                modelOutput.rewind()
+                val outputData = modelOutput.asFloatBuffer().get(0)
+                Log.e("TAG", outputData.toString())
+                val returnVal = (outputData * 100 + 50).toInt()
+                callback.onSleepScoreCalculated(returnVal)
+            }
+        }
+        .addOnFailureListener { exception ->
+            Log.e("ModelDownload", "Failed to download model", exception)
+            callback.onSleepScoreCalculated(-1) // Indicate an error in some way
+        }
+}
+
+interface SleepScoreCallback {
+    fun onSleepScoreCalculated(score: Int)
 }

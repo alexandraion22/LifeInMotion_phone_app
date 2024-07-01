@@ -150,7 +150,7 @@ fun SleepContent(
                     )
                     {
                         if(todaysSleep!=null)
-                            SleepScoreCard(navController = navController)
+                            SleepScoreCard(navController = navController, todaysSleep!!.automaticScore)
                         else
                         {
                             Column(modifier = Modifier
@@ -182,29 +182,81 @@ fun SleepContent(
         }
     }
 }
-
 @Composable
 fun SleepSummary(sleepEntry: SleepDaily) {
-    Column(modifier = Modifier
-        .padding(8.dp)) {
-        Text(text = "Tonight's sleep",  fontSize = 24.sp)
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(text = "Tonight's sleep", fontSize = 24.sp)
 
-        val totalSleep  =sleepEntry.lightDuration+sleepEntry.deepDuration+sleepEntry.REMDuration
-        Column (modifier = Modifier
-            .padding(4.dp)){
+        val totalSleep = sleepEntry.lightDuration + sleepEntry.deepDuration + sleepEntry.REMDuration
+        Column(modifier = Modifier.padding(4.dp)) {
             Spacer(modifier = Modifier.height(8.dp))
             val colorGreen = Color(0XFF20A072)
             val colorYellow = Color(0XFFEBCB65)
             val colorOrange = Color(0xFFE89323)
             val colorRed = Color(0XFFFF5733)
 
-            HourBar(label = "Total Sleep Time", value = totalSleep/60f, valueMax = 7, color = colorGreen)
-            NormalBar(label = "Sleep Cycles", value = sleepEntry.cycles.toFloat(), valueMax = 7, textVal = "cycles", color = colorOrange)
-            NormalBar(label = "Awakenings", value = sleepEntry.awakenings.toFloat(), valueMax = 4, textVal = "awakenings", color = colorOrange)
+            val totalSleepColor = when {
+                totalSleep < 4 * 60 -> colorRed
+                totalSleep < 7 * 60 -> colorYellow
+                else -> colorGreen
+            }
+            HourBar(
+                label = "Total Sleep Time",
+                value = totalSleep / 60f,
+                valueMax = 7,
+                color = totalSleepColor
+            )
 
-            Bar(label = "Deep Sleep", percentage = sleepEntry.deepDuration/(totalSleep.toFloat()) * 100, color = colorGreen)
-            Bar(label = "Light Sleep", percentage = sleepEntry.lightDuration/(totalSleep.toFloat()) * 100, color = colorGreen)
-            Bar(label = "REM Sleep", percentage = sleepEntry.REMDuration/(totalSleep.toFloat()) *100, color = colorGreen)
+            val cyclesColor = if (sleepEntry.cycles < 3) colorYellow else colorGreen
+            NormalBar(
+                label = "Sleep Cycles",
+                value = sleepEntry.cycles.toFloat(),
+                valueMax = 7,
+                textVal = "cycles",
+                color = cyclesColor
+            )
+
+            val awakeningsColor = if (sleepEntry.awakenings > 5) colorYellow else colorGreen
+            NormalBar(
+                label = "Awakenings",
+                value = sleepEntry.awakenings.toFloat(),
+                valueMax = 4,
+                textVal = "awakenings",
+                color = awakeningsColor
+            )
+
+            val deepSleepPercentage = sleepEntry.deepDuration / totalSleep.toFloat() * 100
+            val deepSleepColor = when {
+                deepSleepPercentage < 10 -> colorRed
+                deepSleepPercentage < 20 -> colorYellow
+                else -> colorGreen
+            }
+
+            val lightSleepPercentage = sleepEntry.lightDuration / totalSleep.toFloat() * 100
+            val lightSleepColor = if (lightSleepPercentage < 40) colorYellow else colorGreen
+
+            val remSleepPercentage = sleepEntry.REMDuration / totalSleep.toFloat() * 100
+            val remSleepColor = when {
+                remSleepPercentage < 10 -> colorRed
+                remSleepPercentage < 20 -> colorYellow
+                else -> colorGreen
+            }
+
+            Bar(
+                label = "Deep Sleep",
+                percentage = deepSleepPercentage,
+                color = deepSleepColor
+            )
+            Bar(
+                label = "Light Sleep",
+                percentage = lightSleepPercentage,
+                color = lightSleepColor
+            )
+            Bar(
+                label = "REM Sleep",
+                percentage = remSleepPercentage,
+                color = remSleepColor
+            )
         }
     }
 }
@@ -212,35 +264,88 @@ fun SleepSummary(sleepEntry: SleepDaily) {
 
 @Composable
 fun SleepSummaryIndividual(sleepEntry: SleepDaily) {
-    Column(modifier = Modifier
-        .padding(8.dp)) {
-        Text(text = "Sleep summary",  fontSize = 24.sp)
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(text = "Sleep summary", fontSize = 24.sp)
 
-        val totalSleep  = sleepEntry.lightDuration+sleepEntry.deepDuration+sleepEntry.REMDuration
-        Column (modifier = Modifier
-            .padding(4.dp)){
+        val totalSleep = sleepEntry.lightDuration + sleepEntry.deepDuration + sleepEntry.REMDuration
+        Column(modifier = Modifier.padding(4.dp)) {
             Spacer(modifier = Modifier.height(8.dp))
             val colorGreen = Color(0XFF20A072)
             val colorYellow = Color(0XFFEBCB65)
             val colorOrange = Color(0xFFE89323)
             val colorRed = Color(0XFFFF5733)
 
-            HourBar(label = "Total Sleep Time", value = totalSleep/60f, valueMax = 7, color = colorGreen)
-            NormalBar(label = "Sleep Cycles", value = sleepEntry.cycles.toFloat(), valueMax = 7, textVal = "cycles", color = colorOrange)
-            NormalBar(label = "Awakenings", value = sleepEntry.awakenings.toFloat(), valueMax = 4, textVal = "awakenings", color = colorOrange)
+            val totalSleepColor = when {
+                totalSleep < 4 * 60 -> colorRed
+                totalSleep < 7 * 60 -> colorYellow
+                else -> colorGreen
+            }
+            HourBar(
+                label = "Total Sleep Time",
+                value = totalSleep / 60f,
+                valueMax = 7,
+                color = totalSleepColor
+            )
 
-            Bar(label = "Deep Sleep", percentage = sleepEntry.deepDuration/(totalSleep.toFloat()) * 100, color = colorGreen)
-            Bar(label = "Light Sleep", percentage = sleepEntry.lightDuration/(totalSleep.toFloat()) * 100, color = colorGreen)
-            Bar(label = "REM Sleep", percentage = sleepEntry.REMDuration/(totalSleep.toFloat()) *100, color = colorGreen)
+            val cyclesColor = if (sleepEntry.cycles < 3) colorYellow else colorGreen
+            NormalBar(
+                label = "Sleep Cycles",
+                value = sleepEntry.cycles.toFloat(),
+                valueMax = 7,
+                textVal = "cycles",
+                color = cyclesColor
+            )
+
+            val awakeningsColor = if (sleepEntry.awakenings > 5) colorYellow else colorGreen
+            NormalBar(
+                label = "Awakenings",
+                value = sleepEntry.awakenings.toFloat(),
+                valueMax = 4,
+                textVal = "awakenings",
+                color = awakeningsColor
+            )
+
+            val deepSleepPercentage = sleepEntry.deepDuration / totalSleep.toFloat() * 100
+            val deepSleepColor = when {
+                deepSleepPercentage < 10 -> colorRed
+                deepSleepPercentage < 20 -> colorYellow
+                else -> colorGreen
+            }
+
+            val lightSleepPercentage = sleepEntry.lightDuration / totalSleep.toFloat() * 100
+            val lightSleepColor = if (lightSleepPercentage < 40) colorYellow else colorGreen
+
+            val remSleepPercentage = sleepEntry.REMDuration / totalSleep.toFloat() * 100
+            val remSleepColor = when {
+                remSleepPercentage < 10 -> colorRed
+                remSleepPercentage < 20 -> colorYellow
+                else -> colorGreen
+            }
+
+            Bar(
+                label = "Deep Sleep",
+                percentage = deepSleepPercentage,
+                color = deepSleepColor
+            )
+            Bar(
+                label = "Light Sleep",
+                percentage = lightSleepPercentage,
+                color = lightSleepColor
+            )
+            Bar(
+                label = "REM Sleep",
+                percentage = remSleepPercentage,
+                color = remSleepColor
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
-            Row{
+            Row {
                 Text("Automatic score")
                 Spacer(modifier = Modifier.weight(1f))
                 Text(sleepEntry.automaticScore.toString())
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Row{
+            Row {
                 Text("Manual score")
                 Spacer(modifier = Modifier.weight(1f))
                 Text(sleepEntry.givenScore.toString())
@@ -248,7 +353,6 @@ fun SleepSummaryIndividual(sleepEntry: SleepDaily) {
         }
     }
 }
-
 
 @Composable
 fun HourBar(label: String, value: Float, valueMax: Int, color: Color) {
@@ -334,67 +438,75 @@ fun Bar(label: String, percentage: Float, color: Color) {
         }
     }
 }
-
 @Composable
-fun SleepScoreCard(navController: NavController) {
+fun SleepScoreCard(navController: NavController, sleepScore: Int) {
 
-        val colorGreen = Color(0XFF20A072)
-        Column(modifier = Modifier.padding(8.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+    val colorGreen = Color(0XFF20A072)
+    val colorYellow = Color(0XFFEBCB65)
+    val colorOrange = Color(0xFFE89323)
+    val colorRed = Color(0XFFFF5733)
+
+    val scoreCategory = when {
+        sleepScore < 40 -> Pair(colorRed, "Needs attention")
+        sleepScore < 80 -> Pair(colorYellow, "Good")
+        else -> Pair(colorGreen, "Excellent")
+    }
+
+    Column(modifier = Modifier.padding(8.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Sleep score",
+                fontSize = 24.sp
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_navbar_sleep), // Replace with actual icon resource
+                contentDescription = null,
+                modifier = Modifier.size(40.dp)
+            )
+        }
+
+        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = sleepScore.toString(),
+                    color = scoreCategory.first,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 34.sp
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+                Text(
+                    text = scoreCategory.second,
+                    color = scoreCategory.first,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Take a moment to rate your sleep in order to get better insights"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = { navController.navigate("SLEEP/RATE") },
+                colors = ButtonDefaults.buttonColors(containerColor = PsychedelicPurple)
             ) {
                 Text(
-                    text = "Sleep score",
-                    fontSize = 24.sp
+                    "Rate Sleep",
+                    color = Color.White,
+                    fontSize = 15.sp
                 )
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_navbar_sleep), // Replace with actual icon resource
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-
-            Column (modifier = Modifier.padding(horizontal = 4.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "95",
-                        color = colorGreen,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 34.sp
-                    )
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text(
-                        text = "Excellent",
-                        color = colorGreen,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "Take a moment to rate your sleep in order to get better insights"
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = { navController.navigate("SLEEP/RATE") },
-                    colors = ButtonDefaults.buttonColors(containerColor = PsychedelicPurple)
-                ) {
-                    Text(
-                        "Rate Sleep",
-                        color = Color.White,
-                        fontSize = 15.sp
-                    )
-                }
             }
         }
+    }
 }
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

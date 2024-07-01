@@ -44,7 +44,7 @@ fun HomeNavGraph(navController: NavHostController, userViewModel: UserViewModel,
         startDestination = BottomBarScreen.Home.route
     ) {
         composable(BottomBarScreen.Home.route) {
-            HomeContent(navController = navController, userViewModel = userViewModel, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository)
+            HomeContent(navController = navController, userViewModel = userViewModel, stepsDailyRepository = stepsDailyRepository, bpmRepository = bpmRepository, caloriesDailyRepository = caloriesDailyRepository, activityDailyRepository = activityDailyRepository, goalsRepository = goalsRepository, sleepRepository = sleepDailyRepository)
         }
 
         composable(route = BottomBarScreen.Workout.route) {
